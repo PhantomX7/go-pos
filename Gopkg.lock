@@ -3,15 +3,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:284b767589235afb7721ae9b74d0f81b1f6c835fbfdaf0ee764f1cc05342b180"
+  digest = "1:4039d59bed1538faf557e2c3ee177d4432cf6f2110ca37258231683c38012aeb"
   name = "github.com/PhantomX7/go-cleanarch"
   packages = [
     "app/api/middleware",
     "app/api/server",
-    "author",
-    "author/delivery/http/request",
-    "author/delivery/http/response",
-    "models",
     "util/errors",
     "util/validators",
   ]
@@ -118,6 +114,14 @@
   pruneopts = "UT"
   revision = "f5c5f50e6090ae76a29240b61ae2a90dd810112e"
   version = "v1.0.0"
+
+[[projects]]
+  digest = "1:e668ebc4cec3a084c222b4255a1565ee652614f029a7b2f4b1bc9557565ed473"
+  name = "github.com/jinzhu/now"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1a6fdd4591d336a897120c50c69ed3c0e8033468"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:709cd2a2c29cc9b89732f6c24846bbb9d6270f28ef5ef2128cc73bd0d6d7bff9"
@@ -314,18 +318,15 @@
   input-imports = [
     "github.com/PhantomX7/go-cleanarch/app/api/middleware",
     "github.com/PhantomX7/go-cleanarch/app/api/server",
-    "github.com/PhantomX7/go-cleanarch/author",
-    "github.com/PhantomX7/go-cleanarch/author/delivery/http/request",
-    "github.com/PhantomX7/go-cleanarch/author/delivery/http/response",
-    "github.com/PhantomX7/go-cleanarch/models",
-    "github.com/PhantomX7/go-cleanarch/util/errors",
     "github.com/appleboy/gin-jwt",
+    "github.com/dgrijalva/jwt-go",
     "github.com/gin-contrib/cors",
     "github.com/gin-gonic/gin",
     "github.com/gin-gonic/gin/binding",
     "github.com/go-sql-driver/mysql",
     "github.com/jinzhu/copier",
     "github.com/jinzhu/gorm",
+    "github.com/jinzhu/now",
     "github.com/julienschmidt/httprouter",
     "github.com/prometheus/client_golang/prometheus/promhttp",
     "github.com/selvatico/go-mocket",

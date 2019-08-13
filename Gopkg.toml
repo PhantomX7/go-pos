@@ -24,6 +24,10 @@
 #   go-tests = true
 #   unused-packages = true
 
+[metadata.heroku]
+  root-package = "github.com/PhantomX7/go-pos"
+  go-version = "1.12.4"
+  install = [ "./..." ]
 
 [prune]
   go-tests = true
