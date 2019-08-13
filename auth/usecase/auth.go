@@ -5,8 +5,8 @@ import (
 	"github.com/PhantomX7/go-pos/auth/delivery/http/request"
 	"github.com/PhantomX7/go-pos/auth/delivery/http/response"
 	"github.com/PhantomX7/go-pos/models"
-	"github.com/PhantomX7/go-pos/user"
 	"github.com/PhantomX7/go-pos/role"
+	"github.com/PhantomX7/go-pos/user"
 	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
@@ -23,6 +23,7 @@ type AuthUsecase struct {
 type authClaims struct {
 	jwt.StandardClaims
 	Username string `json:"username"`
+	Role     string `json:"role"`
 	Id       uint64 `json:"id"`
 }
 
@@ -40,8 +41,10 @@ func (a AuthUsecase) SignIn(request request.SignInRequest) (response.AuthRespons
 		return response.AuthResponse{}, errors.ErrFailedAuthentication
 	}
 
+	roleM, _ := a.roleRepo.FindByID(userM.RoleId)
+
 	// generate jwt token
-	tokenString, err := generateTokenString(userM)
+	tokenString, err := generateTokenString(userM, roleM)
 	if err != nil {
 		return response.AuthResponse{}, err
 	}
@@ -67,8 +70,9 @@ func (a AuthUsecase) SignUp(request request.SignUpRequest) (response.AuthRespons
 		return response.AuthResponse{}, err
 	}
 	userM, _ = a.userRepo.FindByUsername(request.Username)
+	roleM, _ := a.roleRepo.FindByID(userM.RoleId)
 	// generate jwt token
-	tokenString, err := generateTokenString(userM)
+	tokenString, err := generateTokenString(userM, roleM)
 	if err != nil {
 		return response.AuthResponse{}, err
 	}
@@ -84,15 +88,22 @@ func (a AuthUsecase) GetMe(userID int64) (response.GetMeResponse, error) {
 	if err != nil {
 		return response.GetMeResponse{}, err
 	}
+	roleM, err := a.roleRepo.FindByID(userM.RoleId)
+	if err != nil {
+		return response.GetMeResponse{}, err
+	}
+
 	return response.GetMeResponse{
 		Username: userM.Username,
+		Role:     roleM.Name,
 	}, nil
 }
 
-func generateTokenString(user models.User) (string, error) {
+func generateTokenString(user models.User, role models.Role) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, authClaims{
 		Id:       user.ID,
 		Username: user.Username,
+		Role:     role.Name,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Minute * 180).Unix(),
 			IssuedAt:  time.Now().Unix(),

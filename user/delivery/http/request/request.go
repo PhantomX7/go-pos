@@ -26,7 +26,7 @@ func (request UserCreateRequest) ToUserModel() models.User {
 	return models.User{
 		Username: request.Username,
 		Password: request.Password,
-		RoleId:   uint64(request.RoleId),
+		RoleId:   int64(request.RoleId),
 	}
 }
 
