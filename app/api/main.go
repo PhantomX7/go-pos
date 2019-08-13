@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/PhantomX7/go-pos/utils/validators"
+	"github.com/PhantomX7/go-pos/product"
 	"log"
 	"net/http"
 	"os"
@@ -13,10 +13,15 @@ import (
 
 	"github.com/PhantomX7/go-pos/app/api/middleware"
 	"github.com/PhantomX7/go-pos/app/api/server"
+	"github.com/PhantomX7/go-pos/role"
+	"github.com/PhantomX7/go-pos/user"
+	"github.com/PhantomX7/go-pos/utils/validators"
 
 	userHTTP "github.com/PhantomX7/go-pos/user/delivery/http"
 	userRepo "github.com/PhantomX7/go-pos/user/repository/mysql"
 	userUsecase "github.com/PhantomX7/go-pos/user/usecase"
+
+	roleRepo "github.com/PhantomX7/go-pos/role/repository/mysql"
 
 	authHTTP "github.com/PhantomX7/go-pos/auth/delivery/http"
 	authUsecase "github.com/PhantomX7/go-pos/auth/usecase"
@@ -30,15 +35,23 @@ import (
 	"github.com/subosito/gotenv"
 )
 
+type repositories struct {
+	userRepository    user.UserRepository
+	roleRepository    role.RoleRepository
+	productRepository product.ProductRepository
+}
+
 func main() {
 	loadEnv()
 	db := setupDatabase()
 	// init custom validator
 	validators.NewValidator(db)
 
-	userHandler := resolveUserHandler(db)
-	authHandler := resolveAuthHandler(db)
-	productHandler := resolveProductHandler(db)
+	repositories := initRepository(db)
+
+	userHandler := resolveUserHandler(repositories)
+	authHandler := resolveAuthHandler(repositories)
+	productHandler := resolveProductHandler(repositories)
 	startServer(
 		userHandler,
 		authHandler,
@@ -123,20 +136,25 @@ func sleep() {
 	time.Sleep(waitingTime * time.Second)
 }
 
-func resolveUserHandler(db *gorm.DB) server.Handler {
-	userR := userRepo.NewUserRepository(db)
-	userUC := userUsecase.NewUserUsecase(userR)
+func resolveUserHandler(repositories repositories) server.Handler {
+	userUC := userUsecase.NewUserUsecase(repositories.userRepository)
 	return userHTTP.NewUserHandler(userUC)
 }
 
-func resolveAuthHandler(db *gorm.DB) server.Handler {
-	userR := userRepo.NewUserRepository(db)
-	authUC := authUsecase.NewAuthUsecase(userR)
+func resolveAuthHandler(repositories repositories) server.Handler {
+	authUC := authUsecase.NewAuthUsecase(repositories.userRepository, repositories.roleRepository)
 	return authHTTP.NewAuthHandler(authUC)
 }
 
-func resolveProductHandler(db *gorm.DB) server.Handler {
-	productR := productRepo.NewProductRepository(db)
-	productUC := productUsecase.NewProductUsecase(productR)
+func resolveProductHandler(repositories repositories) server.Handler {
+	productUC := productUsecase.NewProductUsecase(repositories.productRepository)
 	return productHTTP.NewProductHandler(productUC)
+}
+
+func initRepository(db *gorm.DB) repositories {
+	return repositories{
+		userRepository:    userRepo.NewUserRepository(db),
+		roleRepository:    roleRepo.NewRoleRepository(db),
+		productRepository: productRepo.NewProductRepository(db),
+	}
 }

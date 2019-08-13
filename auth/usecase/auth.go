@@ -6,6 +6,7 @@ import (
 	"github.com/PhantomX7/go-pos/auth/delivery/http/response"
 	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/user"
+	"github.com/PhantomX7/go-pos/role"
 	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
@@ -16,6 +17,7 @@ import (
 
 type AuthUsecase struct {
 	userRepo user.UserRepository
+	roleRepo role.RoleRepository
 }
 
 type authClaims struct {
@@ -24,9 +26,10 @@ type authClaims struct {
 	Id       uint64 `json:"id"`
 }
 
-func NewAuthUsecase(userRepo user.UserRepository) auth.AuthUsecase {
+func NewAuthUsecase(userRepo user.UserRepository, roleRepo role.RoleRepository) auth.AuthUsecase {
 	return &AuthUsecase{
 		userRepo: userRepo,
+		roleRepo: roleRepo,
 	}
 }
 

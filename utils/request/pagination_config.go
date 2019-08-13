@@ -22,8 +22,54 @@ type PaginationConfig interface {
 }
 
 type SearchStruct struct {
+	// default
 	Query string
 	Args  []interface{}
+}
+
+type Config struct {
+	limit        int
+	offset       int
+	order        string
+	searchClause SearchStruct
+}
+
+func (c Config) Limit() (res int) {
+	return c.limit
+}
+
+func (c Config) Order() string {
+	return c.order
+}
+
+func (c Config) Offset() (res int) {
+	return c.offset
+}
+
+func (c Config) SearchClause() (res SearchStruct) {
+	return c.searchClause
+}
+
+func GeneratePaginationConfig(limit int, offset int, order string, searchStruct SearchStruct) PaginationConfig {
+	paginationConfig := Config{
+		limit:        limit,
+		offset:       offset,
+		order:        order,
+		searchClause: searchStruct,
+	}
+
+	return paginationConfig
+}
+
+func GenerateDefaultSearchStruct() SearchStruct {
+	return SearchStruct{
+		Query: "true",
+		Args:  []interface{}{},
+	}
+}
+
+func GenerateDefaultPaginationConfig() PaginationConfig {
+	return GeneratePaginationConfig(0, 0, "", GenerateDefaultSearchStruct())
 }
 
 func BuildLimit(conditions map[string][]string) int {

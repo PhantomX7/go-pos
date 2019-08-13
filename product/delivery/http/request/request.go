@@ -51,14 +51,14 @@ func NewProductPaginationConfig(conditions map[string][]string) ProductPaginatio
 		"created_at":        request.DateType,
 	}
 
-	userPaginationConfig := ProductPaginationConfig{
+	productPaginationConfig := ProductPaginationConfig{
 		limit:        request.BuildLimit(conditions),
 		offset:       request.BuildOffset(conditions),
 		order:        request.BuildOrder(conditions),
 		searchClause: request.BuildSearchClause(conditions, filterable),
 	}
 
-	return userPaginationConfig
+	return productPaginationConfig
 }
 
 func (p ProductPaginationConfig) Limit() (res int) {
