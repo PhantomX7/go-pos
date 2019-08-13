@@ -3,8 +3,8 @@ dep:
 
 # Use this only for development
 dev:
-	go build -o cleanarch app/api/main.go
-	./cleanarch
+	go build -o bin/cleanarch app/api/main.go
+	./bin/cleanarch
 
 test:
 	go test ./... -coverprofile cp.out
