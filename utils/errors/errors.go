@@ -1,12 +1,7 @@
 package errors
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
-)
-
-const (
-	ErrorTypeUnprocessableEntity gin.ErrorType = 1 << 13
 )
 
 var (

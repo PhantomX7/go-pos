@@ -11,6 +11,7 @@ const (
 	IdType     string = "ID"
 	NumberType string = "NUMBER"
 	StringType string = "STRING"
+	BoolType   string = "BOOL"
 	DateType   string = "DATE"
 )
 
@@ -108,7 +109,10 @@ func BuildSearchClause(conditions map[string][]string, filterable map[string]str
 				query += fmt.Sprint("AND ", name, " IN (?) ")
 				args = append(args, conditions[name])
 			case StringType:
-				query += fmt.Sprint("AND ", name, " LIKE %?% ")
+				query += fmt.Sprint("AND ", name, " LIKE ? ")
+				args = append(args, fmt.Sprint("%", conditions[name][0], "%"))
+			case BoolType:
+				query += fmt.Sprint("AND ", name, " = ? ")
 				args = append(args, conditions[name][0])
 			case NumberType:
 				query += fmt.Sprint("AND ", name, " BETWEEN ? AND ? ")

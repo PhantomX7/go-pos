@@ -5,10 +5,10 @@ import (
 )
 
 type User struct {
-	ID        uint64    `json:"id"`
+	ID        int64     `json:"id"`
 	Username  string    `json:"username"`
 	Password  string    `json:"password"`
-	RoleId    int64    `json:"role_id"`
+	RoleId    int64     `json:"role_id"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

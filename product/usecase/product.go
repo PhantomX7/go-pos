@@ -4,7 +4,7 @@ import (
 	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/product"
 	"github.com/PhantomX7/go-pos/product/delivery/http/request"
-	"github.com/PhantomX7/go-pos/product/delivery/http/response"
+	"github.com/PhantomX7/go-pos/utils/response"
 	"github.com/jinzhu/copier"
 )
 
@@ -55,8 +55,8 @@ func (a *ProductUsecase) Update(productID int64, request request.ProductUpdateRe
 	return productM, nil
 }
 
-func (a *ProductUsecase) Index(paginationConfig request.ProductPaginationConfig) ([]models.Product, response.ProductPaginationMeta, error) {
-	meta := response.ProductPaginationMeta{
+func (a *ProductUsecase) Index(paginationConfig request.ProductPaginationConfig) ([]models.Product, response.PaginationMeta, error) {
+	meta := response.PaginationMeta{
 		Offset: paginationConfig.Offset(),
 		Limit:  paginationConfig.Limit(),
 		Total:  0,

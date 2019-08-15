@@ -24,7 +24,7 @@ type authClaims struct {
 	jwt.StandardClaims
 	Username string `json:"username"`
 	Role     string `json:"role"`
-	Id       uint64 `json:"id"`
+	Id       int64  `json:"id"`
 }
 
 func NewAuthUsecase(userRepo user.UserRepository, roleRepo role.RoleRepository) auth.AuthUsecase {

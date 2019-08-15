@@ -3,7 +3,7 @@ package usecase
 import (
 	"github.com/PhantomX7/go-pos/user"
 	"github.com/PhantomX7/go-pos/user/delivery/http/request"
-	"github.com/PhantomX7/go-pos/user/delivery/http/response"
+	"github.com/PhantomX7/go-pos/utils/response"
 	"github.com/PhantomX7/go-pos/models"
 	"github.com/jinzhu/copier"
 )
@@ -44,8 +44,8 @@ func (a *UserUsecase) Update(userID int64, user request.UserUpdateRequest) (mode
 	return userM, nil
 }
 
-func (a *UserUsecase) Index(paginationConfig request.PaginationConfig) ([]models.User, response.UserPaginationMeta, error) {
-	return nil, response.UserPaginationMeta{}, nil
+func (a *UserUsecase) Index(paginationConfig request.PaginationConfig) ([]models.User, response.PaginationMeta, error) {
+	return nil, response.PaginationMeta{}, nil
 }
 
 func (a *UserUsecase) Show(userID int64) (models.User, error) {

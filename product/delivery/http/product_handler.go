@@ -2,6 +2,8 @@ package http
 
 import (
 	"github.com/PhantomX7/go-pos/utils/errors"
+	"github.com/PhantomX7/go-pos/utils/response"
+	"net/http"
 	"strconv"
 
 	"github.com/PhantomX7/go-pos/app/api/middleware"
@@ -47,7 +49,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, productModel)
+	c.JSON(http.StatusOK, productModel)
 }
 
 func (h *ProductHandler) Update(c *gin.Context) {
@@ -69,7 +71,7 @@ func (h *ProductHandler) Update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, productModel)
+	c.JSON(http.StatusOK, productModel)
 }
 
 func (h *ProductHandler) Index(c *gin.Context) {
@@ -78,10 +80,9 @@ func (h *ProductHandler) Index(c *gin.Context) {
 		_ = c.Error(err).SetType(gin.ErrorTypePublic)
 		return
 	}
-
-	c.JSON(200, map[string]interface{}{
-		"data": products,
-		"meta": productPagination,
+	c.JSON(http.StatusOK, response.IndexResponse{
+		Data: products,
+		Meta: productPagination,
 	})
 }
 
@@ -97,5 +98,5 @@ func (h *ProductHandler) Show(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, productModel)
+	c.JSON(http.StatusOK, productModel)
 }

@@ -1,14 +1,16 @@
 package http
 
 import (
+	"github.com/PhantomX7/go-pos/utils/response"
+	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
-	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/PhantomX7/go-pos/app/api/middleware"
 	"github.com/PhantomX7/go-pos/app/api/server"
 	"github.com/PhantomX7/go-pos/user"
 	"github.com/PhantomX7/go-pos/user/delivery/http/request"
+	"github.com/PhantomX7/go-pos/utils/errors"
+	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
@@ -47,7 +49,7 @@ func (h *UserHandler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, userModel)
+	c.JSON(http.StatusOK, userModel)
 }
 
 func (h *UserHandler) Update(c *gin.Context) {
@@ -69,7 +71,7 @@ func (h *UserHandler) Update(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, userModel)
+	c.JSON(http.StatusOK, userModel)
 }
 
 func (h *UserHandler) Index(c *gin.Context) {
@@ -79,9 +81,9 @@ func (h *UserHandler) Index(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, map[string]interface{}{
-		"data": users,
-		"meta": userPagination,
+	c.JSON(http.StatusOK, response.IndexResponse{
+		Data: users,
+		Meta: userPagination,
 	})
 }
 
@@ -97,5 +99,5 @@ func (h *UserHandler) Show(c *gin.Context) {
 		return
 	}
 
-	c.JSON(200, userModel)
+	c.JSON(http.StatusOK, userModel)
 }
