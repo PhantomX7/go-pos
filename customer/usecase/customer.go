@@ -4,7 +4,7 @@ import (
 	"github.com/PhantomX7/go-pos/customer"
 	"github.com/PhantomX7/go-pos/customer/delivery/http/request"
 	"github.com/PhantomX7/go-pos/models"
-	"github.com/PhantomX7/go-pos/utils/response"
+	"github.com/PhantomX7/go-pos/utils/response_util"
 	"github.com/jinzhu/copier"
 )
 
@@ -58,8 +58,8 @@ func (a *CustomerUsecase) Delete(customerID int64) error {
 	return nil
 }
 
-func (a *CustomerUsecase) Index(paginationConfig request.CustomerPaginationConfig) ([]models.Customer, response.PaginationMeta, error) {
-	meta := response.PaginationMeta{
+func (a *CustomerUsecase) Index(paginationConfig request.CustomerPaginationConfig) ([]models.Customer, response_util.PaginationMeta, error) {
+	meta := response_util.PaginationMeta{
 		Offset: paginationConfig.Offset(),
 		Limit:  paginationConfig.Limit(),
 		Total:  0,

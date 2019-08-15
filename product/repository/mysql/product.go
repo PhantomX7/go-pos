@@ -3,7 +3,7 @@ package mysql
 import (
 	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/product"
-	"github.com/PhantomX7/go-pos/utils/request"
+	"github.com/PhantomX7/go-pos/utils/request_util"
 
 	//"github.com/PhantomX7/go-pos/product/delivery/http/request"
 	"github.com/PhantomX7/go-pos/utils/errors"
@@ -39,7 +39,7 @@ func (p *ProductRepository) Update(product *models.Product) error {
 	return nil
 }
 
-func (p *ProductRepository) FindAll(config request.PaginationConfig) ([]models.Product, error) {
+func (p *ProductRepository) FindAll(config request_util.PaginationConfig) ([]models.Product, error) {
 	var results []models.Product
 
 	//default order
@@ -79,7 +79,7 @@ func (p *ProductRepository) FindByID(productID int64) (models.Product, error) {
 	return model, nil
 }
 
-func (p *ProductRepository) Count(config request.PaginationConfig) (int, error) {
+func (p *ProductRepository) Count(config request_util.PaginationConfig) (int, error) {
 	var count int
 
 	sc := config.SearchClause()

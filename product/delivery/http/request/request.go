@@ -1,7 +1,7 @@
 package request
 
 import (
-	"github.com/PhantomX7/go-pos/utils/request"
+	"github.com/PhantomX7/go-pos/utils/request_util"
 )
 
 // request related struct
@@ -34,28 +34,28 @@ type ProductPaginationConfig struct {
 	limit        int
 	offset       int
 	order        string
-	searchClause request.SearchStruct
+	searchClause request_util.SearchStruct
 }
 
 func NewProductPaginationConfig(conditions map[string][]string) ProductPaginationConfig {
 	filterable := map[string]string{
-		"id":                request.IdType,
-		"name":              request.StringType,
-		"pinyin":            request.StringType,
-		"unit":              request.StringType,
-		"unit_amount":       request.NumberType,
-		"description":       request.StringType,
-		"capital_price":     request.NumberType,
-		"sell_price_credit": request.NumberType,
-		"sell_price_cash":   request.NumberType,
-		"created_at":        request.DateType,
+		"id":                request_util.IdType,
+		"name":              request_util.StringType,
+		"pinyin":            request_util.StringType,
+		"unit":              request_util.StringType,
+		"unit_amount":       request_util.NumberType,
+		"description":       request_util.StringType,
+		"capital_price":     request_util.NumberType,
+		"sell_price_credit": request_util.NumberType,
+		"sell_price_cash":   request_util.NumberType,
+		"created_at":        request_util.DateType,
 	}
 
 	productPaginationConfig := ProductPaginationConfig{
-		limit:        request.BuildLimit(conditions),
-		offset:       request.BuildOffset(conditions),
-		order:        request.BuildOrder(conditions),
-		searchClause: request.BuildSearchClause(conditions, filterable),
+		limit:        request_util.BuildLimit(conditions),
+		offset:       request_util.BuildOffset(conditions),
+		order:        request_util.BuildOrder(conditions),
+		searchClause: request_util.BuildSearchClause(conditions, filterable),
 	}
 
 	return productPaginationConfig
@@ -73,6 +73,6 @@ func (p ProductPaginationConfig) Offset() (res int) {
 	return p.offset
 }
 
-func (p ProductPaginationConfig) SearchClause() (res request.SearchStruct) {
+func (p ProductPaginationConfig) SearchClause() (res request_util.SearchStruct) {
 	return p.searchClause
 }

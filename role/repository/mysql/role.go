@@ -3,7 +3,7 @@ package mysql
 import (
 	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/role"
-	"github.com/PhantomX7/go-pos/utils/request"
+	"github.com/PhantomX7/go-pos/utils/request_util"
 	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/jinzhu/gorm"
 	"log"
@@ -37,7 +37,7 @@ func (r *RoleRepository) Update(role *models.Role) error {
 	return nil
 }
 
-func (r *RoleRepository) FindAll(config request.PaginationConfig) ([]models.Role, error) {
+func (r *RoleRepository) FindAll(config request_util.PaginationConfig) ([]models.Role, error) {
 	var results []models.Role
 
 	//default order

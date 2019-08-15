@@ -6,7 +6,7 @@ import (
 	"github.com/PhantomX7/go-pos/customer"
 	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/utils/errors"
-	"github.com/PhantomX7/go-pos/utils/request"
+	"github.com/PhantomX7/go-pos/utils/request_util"
 	"github.com/jinzhu/gorm"
 )
 
@@ -47,7 +47,7 @@ func (c *CustomerRepository) Delete(customer *models.Customer) error {
 	return nil
 }
 
-func (c *CustomerRepository) FindAll(config request.PaginationConfig) ([]models.Customer, error) {
+func (c *CustomerRepository) FindAll(config request_util.PaginationConfig) ([]models.Customer, error) {
 	var results []models.Customer
 
 	//default order
@@ -87,7 +87,7 @@ func (c *CustomerRepository) FindByID(customerID int64) (models.Customer, error)
 	return model, nil
 }
 
-func (c *CustomerRepository) Count(config request.PaginationConfig) (int, error) {
+func (c *CustomerRepository) Count(config request_util.PaginationConfig) (int, error) {
 	var count int
 
 	sc := config.SearchClause()

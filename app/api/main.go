@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/PhantomX7/go-pos/invoice"
 	"log"
 	"net/http"
 	"os"
@@ -14,8 +13,10 @@ import (
 	"github.com/PhantomX7/go-pos/app/api/middleware"
 	"github.com/PhantomX7/go-pos/app/api/server"
 	"github.com/PhantomX7/go-pos/customer"
+	"github.com/PhantomX7/go-pos/invoice"
 	"github.com/PhantomX7/go-pos/product"
 	"github.com/PhantomX7/go-pos/role"
+	"github.com/PhantomX7/go-pos/stockmutation"
 	"github.com/PhantomX7/go-pos/user"
 	"github.com/PhantomX7/go-pos/utils/validators"
 
@@ -38,8 +39,9 @@ import (
 
 	invoiceHTTP "github.com/PhantomX7/go-pos/invoice/delivery/http"
 	invoiceRepo "github.com/PhantomX7/go-pos/invoice/repository/mysql"
-
 	invoiceUsecase "github.com/PhantomX7/go-pos/invoice/usecase"
+
+	stockMutationRepo "github.com/PhantomX7/go-pos/stockmutation/repository/mysql"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
@@ -47,11 +49,12 @@ import (
 )
 
 type repositories struct {
-	userRepository     user.UserRepository
-	roleRepository     role.RoleRepository
-	productRepository  product.ProductRepository
-	customerRepository customer.CustomerRepository
-	invoiceRepository  invoice.InvoiceRepository
+	userRepository          user.UserRepository
+	roleRepository          role.RoleRepository
+	productRepository       product.ProductRepository
+	customerRepository      customer.CustomerRepository
+	invoiceRepository       invoice.InvoiceRepository
+	stockMutationRepository stockmutation.StockMutationRepository
 }
 
 func main() {
@@ -174,16 +177,20 @@ func resolveCustomerHandler(repositories repositories) server.Handler {
 }
 
 func resolveInvoiceHandler(repositories repositories) server.Handler {
-	invoiceUC := invoiceUsecase.NewInvoiceUsecase(repositories.invoiceRepository)
+	invoiceUC := invoiceUsecase.NewInvoiceUsecase(
+		repositories.invoiceRepository,
+		repositories.customerRepository,
+	)
 	return invoiceHTTP.NewInvoiceHandler(invoiceUC)
 }
 
 func initRepository(db *gorm.DB) repositories {
 	return repositories{
-		userRepository:     userRepo.NewUserRepository(db),
-		roleRepository:     roleRepo.NewRoleRepository(db),
-		productRepository:  productRepo.NewProductRepository(db),
-		customerRepository: customerRepo.NewCustomerRepository(db),
-		invoiceRepository:  invoiceRepo.NewInvoiceRepository(db),
+		userRepository:          userRepo.NewUserRepository(db),
+		roleRepository:          roleRepo.NewRoleRepository(db),
+		productRepository:       productRepo.NewProductRepository(db),
+		customerRepository:      customerRepo.NewCustomerRepository(db),
+		invoiceRepository:       invoiceRepo.NewInvoiceRepository(db),
+		stockMutationRepository: stockMutationRepo.NewStockMutationRepository(db),
 	}
 }

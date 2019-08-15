@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/PhantomX7/go-pos/utils/response"
+	"github.com/PhantomX7/go-pos/utils/response_util"
 	"net/http"
 	"strconv"
 
@@ -81,7 +81,7 @@ func (h *UserHandler) Index(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, response.IndexResponse{
+	c.JSON(http.StatusOK, response_util.IndexResponse{
 		Data: users,
 		Meta: userPagination,
 	})

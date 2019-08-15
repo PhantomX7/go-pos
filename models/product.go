@@ -15,5 +15,5 @@ type Product struct {
 	SellPriceCredit float64   `json:"sell_price_credit"`
 	SellPriceCash   float64   `json:"sell_price_cash"`
 	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	UpdatedAt       time.Time `json:"-"`
 }

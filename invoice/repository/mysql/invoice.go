@@ -6,7 +6,7 @@ import (
 	"github.com/PhantomX7/go-pos/invoice"
 	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/utils/errors"
-	"github.com/PhantomX7/go-pos/utils/request"
+	"github.com/PhantomX7/go-pos/utils/request_util"
 	"github.com/jinzhu/gorm"
 )
 
@@ -47,7 +47,7 @@ func (i *InvoiceRepository) Delete(invoice *models.Invoice) error {
 	return nil
 }
 
-func (i *InvoiceRepository) FindAll(config request.PaginationConfig) ([]models.Invoice, error) {
+func (i *InvoiceRepository) FindAll(config request_util.PaginationConfig) ([]models.Invoice, error) {
 	var results []models.Invoice
 
 	//default order
@@ -87,7 +87,7 @@ func (i *InvoiceRepository) FindByID(invoiceID int64) (models.Invoice, error) {
 	return model, nil
 }
 
-func (i *InvoiceRepository) Count(config request.PaginationConfig) (int, error) {
+func (i *InvoiceRepository) Count(config request_util.PaginationConfig) (int, error) {
 	var count int
 
 	sc := config.SearchClause()

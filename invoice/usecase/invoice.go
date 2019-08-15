@@ -1,22 +1,26 @@
 package usecase
 
 import (
+	"github.com/PhantomX7/go-pos/customer"
 	"github.com/PhantomX7/go-pos/invoice"
 	"github.com/PhantomX7/go-pos/invoice/delivery/http/request"
+	"github.com/PhantomX7/go-pos/invoice/delivery/http/response"
 	"github.com/PhantomX7/go-pos/models"
-	"github.com/PhantomX7/go-pos/utils/response"
+	"github.com/PhantomX7/go-pos/utils/response_util"
 	"github.com/jinzhu/copier"
 )
 
 // apply business logic here
 
 type InvoiceUsecase struct {
-	invoiceRepo invoice.InvoiceRepository
+	invoiceRepo  invoice.InvoiceRepository
+	customerRepo customer.CustomerRepository
 }
 
-func NewInvoiceUsecase(invoiceRepo invoice.InvoiceRepository) invoice.InvoiceUsecase {
+func NewInvoiceUsecase(invoiceRepo invoice.InvoiceRepository, customerRepo customer.CustomerRepository) invoice.InvoiceUsecase {
 	return &InvoiceUsecase{
-		invoiceRepo: invoiceRepo,
+		invoiceRepo:  invoiceRepo,
+		customerRepo: customerRepo,
 	}
 }
 
@@ -63,8 +67,9 @@ func (a *InvoiceUsecase) Delete(invoiceID int64) error {
 	return nil
 }
 
-func (a *InvoiceUsecase) Index(paginationConfig request.InvoicePaginationConfig) ([]models.Invoice, response.PaginationMeta, error) {
-	meta := response.PaginationMeta{
+func (a *InvoiceUsecase) Index(paginationConfig request.InvoicePaginationConfig) (response.InvoiceResponse, response_util.PaginationMeta, error) {
+	var res []response.InvoiceDetail
+	meta := response_util.PaginationMeta{
 		Offset: paginationConfig.Offset(),
 		Limit:  paginationConfig.Limit(),
 		Total:  0,
@@ -75,6 +80,11 @@ func (a *InvoiceUsecase) Index(paginationConfig request.InvoicePaginationConfig)
 		return nil, meta, err
 	}
 
+	for _, inv := range invoices {
+		c, _ := a.customerRepo.FindByID(inv.CustomerId)
+		res = append(res, response.InvoiceDetail{Invoice: inv, Customer: &c})
+	}
+
 	total, err := a.invoiceRepo.Count(paginationConfig)
 	if err != nil {
 		return nil, meta, err
@@ -82,7 +92,7 @@ func (a *InvoiceUsecase) Index(paginationConfig request.InvoicePaginationConfig)
 
 	meta.Total = total
 
-	return invoices, meta, nil
+	return res, meta, nil
 }
 
 func (a *InvoiceUsecase) Show(invoiceID int64) (models.Invoice, error) {

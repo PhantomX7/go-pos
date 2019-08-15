@@ -5,7 +5,7 @@ import (
 	"github.com/PhantomX7/go-pos/user"
 	"github.com/PhantomX7/go-pos/user/delivery/http/request"
 	"github.com/PhantomX7/go-pos/utils/errors"
-	"github.com/PhantomX7/go-pos/utils/response"
+	"github.com/PhantomX7/go-pos/utils/response_util"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -47,8 +47,8 @@ func (a *UserRepository) Update(user *models.User) error {
 	return nil
 }
 
-func (a *UserRepository) FindAll(config request.PaginationConfig) ([]models.User, response.PaginationMeta, error) {
-	return nil, response.PaginationMeta{}, nil
+func (a *UserRepository) FindAll(config request.PaginationConfig) ([]models.User, response_util.PaginationMeta, error) {
+	return nil, response_util.PaginationMeta{}, nil
 }
 
 func (a *UserRepository) FindByID(userID int64) (models.User, error) {

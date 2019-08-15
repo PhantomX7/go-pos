@@ -2,7 +2,7 @@ package http
 
 import (
 	"github.com/PhantomX7/go-pos/utils/errors"
-	"github.com/PhantomX7/go-pos/utils/response"
+	"github.com/PhantomX7/go-pos/utils/response_util"
 	"net/http"
 	"strconv"
 
@@ -80,7 +80,7 @@ func (h *ProductHandler) Index(c *gin.Context) {
 		_ = c.Error(err).SetType(gin.ErrorTypePublic)
 		return
 	}
-	c.JSON(http.StatusOK, response.IndexResponse{
+	c.JSON(http.StatusOK, response_util.IndexResponse{
 		Data: products,
 		Meta: productPagination,
 	})

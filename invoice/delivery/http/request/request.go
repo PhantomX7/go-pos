@@ -1,7 +1,7 @@
 package request
 
 import (
-	"github.com/PhantomX7/go-pos/utils/request"
+	"github.com/PhantomX7/go-pos/utils/request_util"
 	"time"
 )
 
@@ -26,24 +26,24 @@ type InvoicePaginationConfig struct {
 	limit        int
 	offset       int
 	order        string
-	searchClause request.SearchStruct
+	searchClause request_util.SearchStruct
 }
 
 func NewInvoicePaginationConfig(conditions map[string][]string) InvoicePaginationConfig {
 	filterable := map[string]string{
-		"id":             request.IdType,
-		"customer_id":    request.IdType,
-		"date":           request.DateType,
-		"payment_status": request.BoolType,
-		"payment_type":   request.StringType,
-		"description":    request.StringType,
+		"id":             request_util.IdType,
+		"customer_id":    request_util.IdType,
+		"date":           request_util.DateType,
+		"payment_status": request_util.BoolType,
+		"payment_type":   request_util.StringType,
+		"description":    request_util.StringType,
 	}
 
 	invoicePaginationConfig := InvoicePaginationConfig{
-		limit:        request.BuildLimit(conditions),
-		offset:       request.BuildOffset(conditions),
-		order:        request.BuildOrder(conditions),
-		searchClause: request.BuildSearchClause(conditions, filterable),
+		limit:        request_util.BuildLimit(conditions),
+		offset:       request_util.BuildOffset(conditions),
+		order:        request_util.BuildOrder(conditions),
+		searchClause: request_util.BuildSearchClause(conditions, filterable),
 	}
 
 	return invoicePaginationConfig
@@ -61,6 +61,6 @@ func (i InvoicePaginationConfig) Offset() (res int) {
 	return i.offset
 }
 
-func (i InvoicePaginationConfig) SearchClause() (res request.SearchStruct) {
+func (i InvoicePaginationConfig) SearchClause() (res request_util.SearchStruct) {
 	return i.searchClause
 }
