@@ -7,29 +7,29 @@ import (
 
 // request related struct
 
-type InvoiceCreateRequest struct {
-	CustomerId    int64     `form:"customer_id" binding:"required,exist=customers.id"`
+type TransactionCreateRequest struct {
+	InvoiceId    int64   `form:"invoice_id" binding:"required,exist=invoices.id"`
+	ProductId    int64   `form:"product_id" binding:"required,exist=products.id"`
+	CapitalPrice float64 `form:"capital_price" binding:"required"`
+	SellPrice    float64 `form:"sell_price" binding:"required"`
+	Amount       float64 `form:"amount" binding:"required"`
+}
+
+type TransactionUpdateRequest struct {
 	Date          time.Time `form:"date" time_format:"2006-01-02"`
 	PaymentStatus bool      `form:"payment_status"`
 	PaymentType   string    `form:"payment_type"`
 	Description   *string   `form:"description"`
 }
 
-type InvoiceUpdateRequest struct {
-	Date          time.Time `form:"date" time_format:"2006-01-02"`
-	PaymentStatus bool      `form:"payment_status"`
-	PaymentType   string    `form:"payment_type"`
-	Description   *string   `form:"description"`
-}
-
-type InvoicePaginationConfig struct {
+type TransactionPaginationConfig struct {
 	limit        int
 	offset       int
 	order        string
 	searchClause request_util.SearchStruct
 }
 
-func NewInvoicePaginationConfig(conditions map[string][]string) InvoicePaginationConfig {
+func NewTransactionPaginationConfig(conditions map[string][]string) TransactionPaginationConfig {
 	filterable := map[string]string{
 		"id":             request_util.IdType,
 		"customer_id":    request_util.IdType,
@@ -39,28 +39,28 @@ func NewInvoicePaginationConfig(conditions map[string][]string) InvoicePaginatio
 		"description":    request_util.StringType,
 	}
 
-	invoicePaginationConfig := InvoicePaginationConfig{
+	transactionPaginationConfig := TransactionPaginationConfig{
 		limit:        request_util.BuildLimit(conditions),
 		offset:       request_util.BuildOffset(conditions),
 		order:        request_util.BuildOrder(conditions),
 		searchClause: request_util.BuildSearchClause(conditions, filterable),
 	}
 
-	return invoicePaginationConfig
+	return transactionPaginationConfig
 }
 
-func (i InvoicePaginationConfig) Limit() (res int) {
+func (i TransactionPaginationConfig) Limit() (res int) {
 	return i.limit
 }
 
-func (i InvoicePaginationConfig) Order() string {
+func (i TransactionPaginationConfig) Order() string {
 	return i.order
 }
 
-func (i InvoicePaginationConfig) Offset() (res int) {
+func (i TransactionPaginationConfig) Offset() (res int) {
 	return i.offset
 }
 
-func (i InvoicePaginationConfig) SearchClause() (res request_util.SearchStruct) {
+func (i TransactionPaginationConfig) SearchClause() (res request_util.SearchStruct) {
 	return i.searchClause
 }
