@@ -1,11 +1,12 @@
 package usecase
 
 import (
-	"github.com/PhantomX7/go-pos/case"
 	"log"
 	"os"
 	"time"
 
+	"github.com/PhantomX7/go-pos/case/role"
+	"github.com/PhantomX7/go-pos/case/user"
 	"github.com/PhantomX7/go-pos/case/auth"
 	"github.com/PhantomX7/go-pos/case/auth/delivery/http/request"
 	"github.com/PhantomX7/go-pos/case/auth/delivery/http/response"
@@ -16,8 +17,8 @@ import (
 )
 
 type AuthUsecase struct {
-	userRepo _case.UserRepository
-	roleRepo _case.RoleRepository
+	userRepo user.UserRepository
+	roleRepo role.RoleRepository
 }
 
 type authClaims struct {
@@ -27,7 +28,7 @@ type authClaims struct {
 	Id       int64  `json:"id"`
 }
 
-func NewAuthUsecase(userRepo _case.UserRepository, roleRepo _case.RoleRepository) auth.AuthUsecase {
+func NewAuthUsecase(userRepo user.UserRepository, roleRepo role.RoleRepository) auth.AuthUsecase {
 	return &AuthUsecase{
 		userRepo: userRepo,
 		roleRepo: roleRepo,
