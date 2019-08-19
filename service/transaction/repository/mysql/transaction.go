@@ -99,6 +99,19 @@ func (t *TransactionRepository) FindByID(transactionID uint64) (models.Transacti
 	return model, nil
 }
 
+func (t *TransactionRepository) FindByInvoiceID(invoiceID uint64) ([]models.Transaction, error) {
+	model := []models.Transaction{}
+
+	err := t.db.Where("invoice_id = ?", invoiceID).Find(&model).Error
+
+	if err != nil {
+		log.Println("error-find-transaction-by-invoice-id:", err)
+		return nil, errors.ErrUnprocessableEntity
+	}
+
+	return model, nil
+}
+
 func (t *TransactionRepository) Count(config request_util.PaginationConfig) (int, error) {
 	var count int
 

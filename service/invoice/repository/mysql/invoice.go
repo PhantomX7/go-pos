@@ -82,7 +82,7 @@ func (i *InvoiceRepository) FindAll(config request_util.PaginationConfig) ([]mod
 	return results, nil
 }
 
-func (i *InvoiceRepository) FindByID(invoiceID int64) (models.Invoice, error) {
+func (i *InvoiceRepository) FindByID(invoiceID uint64) (models.Invoice, error) {
 	model := models.Invoice{}
 
 	err := i.db.Where("id = ?", invoiceID).First(&model).Error

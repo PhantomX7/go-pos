@@ -8,5 +8,5 @@ import (
 type AuthUsecase interface {
 	SignIn(request request.SignInRequest) (response.AuthResponse, error)
 	SignUp(request request.SignUpRequest) (response.AuthResponse, error)
-	GetMe(userID int64) (response.GetMeResponse, error)
+	GetMe(userID uint64) (response.GetMeResponse, error)
 }

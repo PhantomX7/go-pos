@@ -11,5 +11,5 @@ type CustomerUsecase interface {
 	Update(customerID uint64, request request.CustomerUpdateRequest) (models.Customer, error)
 	Delete(customerID uint64) error
 	Index(paginationConfig request.CustomerPaginationConfig) ([]models.Customer, response_util.PaginationMeta, error)
-	Show(customerID int64) (models.Customer, error)
+	Show(customerID uint64) (models.Customer, error)
 }

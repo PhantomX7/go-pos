@@ -25,7 +25,7 @@ type authClaims struct {
 	jwt.StandardClaims
 	Username string `json:"username"`
 	Role     string `json:"role"`
-	Id       int64  `json:"id"`
+	Id       uint64  `json:"id"`
 }
 
 func NewAuthUsecase(userRepo user.UserRepository, roleRepo role.RoleRepository) auth.AuthUsecase {
@@ -84,7 +84,7 @@ func (a AuthUsecase) SignUp(request request.SignUpRequest) (response.AuthRespons
 	}, nil
 }
 
-func (a AuthUsecase) GetMe(userID int64) (response.GetMeResponse, error) {
+func (a AuthUsecase) GetMe(userID uint64) (response.GetMeResponse, error) {
 	userM, err := a.userRepo.FindByID(userID)
 	if err != nil {
 		return response.GetMeResponse{}, err

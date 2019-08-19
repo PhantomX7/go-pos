@@ -33,6 +33,19 @@ func (i *StockMutationRepository) Insert(stockMutation *models.StockMutation, tx
 	return nil
 }
 
+func (i *StockMutationRepository) Delete(stockMutation *models.StockMutation, tx *gorm.DB) error {
+	var db = i.db
+	if tx != nil {
+		db = tx
+	}
+	err := db.Delete(stockMutation).Error
+	if err != nil {
+		log.Println("error-delete-stockMutation:", err)
+		return errors.ErrUnprocessableEntity
+	}
+	return nil
+}
+
 func (i *StockMutationRepository) FindAll(config request_util.PaginationConfig) ([]models.StockMutation, error) {
 	var results []models.StockMutation
 

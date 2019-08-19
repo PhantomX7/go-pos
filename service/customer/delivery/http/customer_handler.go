@@ -104,7 +104,7 @@ func (h *CustomerHandler) Index(c *gin.Context) {
 }
 
 func (h *CustomerHandler) Show(c *gin.Context) {
-	customerID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	customerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		_ = c.Error(errors.ErrNotFound).SetType(gin.ErrorTypePublic)
 	}

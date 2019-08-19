@@ -7,8 +7,8 @@ import (
 // request related struct
 
 type TransactionCreateRequest struct {
-	InvoiceId    uint64   `form:"invoice_id" binding:"required,exist=invoices.id"`
-	ProductId    uint64   `form:"product_id" binding:"required,exist=products.id"`
+	InvoiceId    uint64  `form:"invoice_id" binding:"required,exist=invoices.id"`
+	ProductId    uint64  `form:"product_id" binding:"required,exist=products.id"`
 	CapitalPrice float64 `form:"capital_price" binding:"required"`
 	SellPrice    float64 `form:"sell_price" binding:"required"`
 	Amount       float64 `form:"amount" binding:"required"`

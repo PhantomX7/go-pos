@@ -70,7 +70,7 @@ func (h *AuthHandler) SignUp(c *gin.Context) {
 
 func (h *AuthHandler) GetMe(c *gin.Context) {
 	claims := jwt.ExtractClaims(c)
-	userID, err := strconv.ParseInt(fmt.Sprint(claims["id"]), 10, 64)
+	userID, err := strconv.ParseUint(fmt.Sprint(claims["id"]), 10, 64)
 	if err != nil {
 		log.Println("error-parsing-id-from-token:", err)
 		_ = c.Error(errors.ErrUnprocessableEntity).SetType(gin.ErrorTypePublic)

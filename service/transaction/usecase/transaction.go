@@ -36,30 +36,19 @@ func NewTransactionUsecase(
 }
 
 func (t *TransactionUsecase) Create(request request.TransactionCreateRequest) (models.Transaction, error) {
-	var transactionM models.Transaction = models.Transaction{
-		InvoiceId:      request.InvoiceId,
-		ProductId:      request.ProductId,
-		CapitalPrice:   request.CapitalPrice,
-		SellPrice:      request.SellPrice,
-		Amount:         request.Amount,
-		Profit:         (request.CapitalPrice * request.Amount) - (request.SellPrice * request.Amount),
-		TotalSellPrice: request.SellPrice * request.Amount,
-	}
+	var transactionM models.Transaction
 
 	// init transaction
 	tx := database.BeginTransactions()
-	// create stock mutation
-	err := t.stockMutationRepo.Insert(&models.StockMutation{
+
+	stockMutationM := models.StockMutation{
 		ProductID: request.ProductId,
 		Amount:    request.Amount,
 		Type:      models.StockMutationOUT,
-	}, tx)
-	if err != nil {
-		tx.Rollback()
-		return transactionM, err
 	}
 
-	err = t.transactionRepo.Insert(&transactionM, tx)
+	// create stock mutation
+	err := t.stockMutationRepo.Insert(&stockMutationM, tx)
 	if err != nil {
 		tx.Rollback()
 		return transactionM, err
@@ -70,7 +59,7 @@ func (t *TransactionUsecase) Create(request request.TransactionCreateRequest) (m
 		tx.Rollback()
 		return transactionM, err
 	}
-
+	// reduce the stock
 	productM.Stock -= request.Amount
 
 	err = t.productRepo.Update(&productM, tx)
@@ -79,7 +68,36 @@ func (t *TransactionUsecase) Create(request request.TransactionCreateRequest) (m
 		return transactionM, err
 	}
 
+	invoiceM, err := t.invoiceRepo.FindByID(request.InvoiceId)
+	if err != nil {
+		tx.Rollback()
+		return transactionM, err
+	}
+
+	transactionM = models.Transaction{
+		InvoiceId:       request.InvoiceId,
+		ProductId:       request.ProductId,
+		StockMutationId: stockMutationM.ID,
+		CapitalPrice:    request.CapitalPrice,
+		SellPrice:       request.SellPrice,
+		Amount:          request.Amount,
+		Profit:          (request.SellPrice * request.Amount) - (request.CapitalPrice * request.Amount),
+		TotalSellPrice:  request.SellPrice * request.Amount,
+		Date:            invoiceM.Date,
+	}
+
+	// insert the transaction
+	err = t.transactionRepo.Insert(&transactionM, tx)
+	if err != nil {
+		tx.Rollback()
+		return transactionM, err
+	}
+
 	tx.Commit()
+
+	// update invoice data
+	invoice.UpdateInvoice(invoiceM.ID, t.transactionRepo, t.invoiceRepo)
+
 	return transactionM, nil
 }
 
@@ -131,9 +149,5 @@ func (t *TransactionUsecase) Index(paginationConfig request.TransactionPaginatio
 }
 
 func (t *TransactionUsecase) Show(transactionID uint64) (models.Transaction, error) {
-	return t.transactionRepo.FindByID(transactionID)
-}
-
-func (t *TransactionUsecase) updateInvoice(transactionID uint64) (models.Transaction, error) {
 	return t.transactionRepo.FindByID(transactionID)
 }
