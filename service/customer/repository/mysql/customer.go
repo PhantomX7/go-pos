@@ -70,7 +70,7 @@ func (c *CustomerRepository) FindAll(config request_util.PaginationConfig) ([]mo
 	return results, nil
 }
 
-func (c *CustomerRepository) FindByID(customerID int64) (models.Customer, error) {
+func (c *CustomerRepository) FindByID(customerID uint64) (models.Customer, error) {
 	model := models.Customer{}
 
 	err := c.db.Where("id = ?", customerID).First(&model).Error

@@ -25,7 +25,7 @@ func (a *UserUsecase) Create(request request.UserCreateRequest) (models.User, er
 	userM := models.User{
 		Username: request.Username,
 		Password: request.Password,
-		RoleId:   int64(request.RoleId),
+		RoleId:   uint64(request.RoleId),
 	}
 
 	err := a.userRepo.Insert(&userM)
@@ -35,7 +35,7 @@ func (a *UserUsecase) Create(request request.UserCreateRequest) (models.User, er
 	return userM, nil
 }
 
-func (a *UserUsecase) Update(userID int64, request request.UserUpdateRequest) (models.User, error) {
+func (a *UserUsecase) Update(userID uint64, request request.UserUpdateRequest) (models.User, error) {
 	userM, err := a.userRepo.FindByID(userID)
 	if err != nil {
 		return userM, err
@@ -55,6 +55,6 @@ func (a *UserUsecase) Index(paginationConfig request_util.PaginationConfig) ([]m
 	return nil, response_util.PaginationMeta{}, nil
 }
 
-func (a *UserUsecase) Show(userID int64) (models.User, error) {
+func (a *UserUsecase) Show(userID uint64) (models.User, error) {
 	return a.userRepo.FindByID(userID)
 }

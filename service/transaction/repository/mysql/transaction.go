@@ -1,10 +1,10 @@
 package mysql
 
 import (
-	"github.com/PhantomX7/go-pos/service/transaction"
 	"log"
 
 	"github.com/PhantomX7/go-pos/models"
+	"github.com/PhantomX7/go-pos/service/transaction"
 	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/PhantomX7/go-pos/utils/request_util"
 	"github.com/jinzhu/gorm"
@@ -20,8 +20,12 @@ func NewTransactionRepository(db *gorm.DB) transaction.TransactionRepository {
 	}
 }
 
-func (i *TransactionRepository) Insert(transaction *models.Transaction) error {
-	err := i.db.Create(transaction).Error
+func (t *TransactionRepository) Insert(transaction *models.Transaction, tx *gorm.DB) error {
+	var db = t.db
+	if tx != nil {
+		db = tx
+	}
+	err := db.Create(transaction).Error
 	if err != nil {
 		log.Println("error-insert-transaction:", err)
 		return errors.ErrUnprocessableEntity
@@ -29,8 +33,12 @@ func (i *TransactionRepository) Insert(transaction *models.Transaction) error {
 	return nil
 }
 
-func (i *TransactionRepository) Update(transaction *models.Transaction) error {
-	err := i.db.Save(transaction).Error
+func (t *TransactionRepository) Update(transaction *models.Transaction, tx *gorm.DB) error {
+	var db = t.db
+	if tx != nil {
+		db = tx
+	}
+	err := db.Save(transaction).Error
 	if err != nil {
 		log.Println("error-update-transaction:", err)
 		return errors.ErrUnprocessableEntity
@@ -38,8 +46,12 @@ func (i *TransactionRepository) Update(transaction *models.Transaction) error {
 	return nil
 }
 
-func (i *TransactionRepository) Delete(transaction *models.Transaction) error {
-	err := i.db.Delete(transaction).Error
+func (t *TransactionRepository) Delete(transaction *models.Transaction, tx *gorm.DB) error {
+	var db = t.db
+	if tx != nil {
+		db = tx
+	}
+	err := db.Delete(transaction).Error
 	if err != nil {
 		log.Println("error-delete-transaction:", err)
 		return errors.ErrUnprocessableEntity
@@ -47,7 +59,7 @@ func (i *TransactionRepository) Delete(transaction *models.Transaction) error {
 	return nil
 }
 
-func (i *TransactionRepository) FindAll(config request_util.PaginationConfig) ([]models.Transaction, error) {
+func (t *TransactionRepository) FindAll(config request_util.PaginationConfig) ([]models.Transaction, error) {
 	var results []models.Transaction
 
 	//default order
@@ -57,7 +69,7 @@ func (i *TransactionRepository) FindAll(config request_util.PaginationConfig) ([
 		order = orderConfig
 	}
 	sc := config.SearchClause()
-	err := i.db.Order(order).
+	err := t.db.Order(order).
 		Limit(config.Limit()).
 		Offset(config.Offset()).
 		Where(sc.Query, sc.Args...).
@@ -70,10 +82,10 @@ func (i *TransactionRepository) FindAll(config request_util.PaginationConfig) ([
 	return results, nil
 }
 
-func (i *TransactionRepository) FindByID(transactionID int64) (models.Transaction, error) {
+func (t *TransactionRepository) FindByID(transactionID uint64) (models.Transaction, error) {
 	model := models.Transaction{}
 
-	err := i.db.Where("id = ?", transactionID).First(&model).Error
+	err := t.db.Where("id = ?", transactionID).First(&model).Error
 
 	if gorm.IsRecordNotFoundError(err) {
 		return model, errors.ErrNotFound
@@ -87,11 +99,11 @@ func (i *TransactionRepository) FindByID(transactionID int64) (models.Transactio
 	return model, nil
 }
 
-func (i *TransactionRepository) Count(config request_util.PaginationConfig) (int, error) {
+func (t *TransactionRepository) Count(config request_util.PaginationConfig) (int, error) {
 	var count int
 
 	sc := config.SearchClause()
-	err := i.db.Model(&models.Transaction{}).Where(sc.Query, sc.Args...).
+	err := t.db.Model(&models.Transaction{}).Where(sc.Query, sc.Args...).
 		Count(&count).Error
 	if err != nil {
 		log.Println("error-count-transaction:", err)

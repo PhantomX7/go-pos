@@ -54,7 +54,7 @@ func (h *ProductHandler) Create(c *gin.Context) {
 
 func (h *ProductHandler) Update(c *gin.Context) {
 	var req request.ProductUpdateRequest
-	productID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	productID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		_ = c.Error(errors.ErrUnprocessableEntity).SetType(gin.ErrorTypePublic)
 	}
@@ -87,7 +87,7 @@ func (h *ProductHandler) Index(c *gin.Context) {
 }
 
 func (h *ProductHandler) Show(c *gin.Context) {
-	productID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	productID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		_ = c.Error(errors.ErrUnprocessableEntity).SetType(gin.ErrorTypePublic)
 	}

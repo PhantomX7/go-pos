@@ -10,6 +10,6 @@ type CustomerRepository interface {
 	Update(customer *models.Customer) error
 	Delete(customer *models.Customer) error
 	FindAll(config request_util.PaginationConfig) ([]models.Customer, error)
-	FindByID(customerID int64) (models.Customer, error)
+	FindByID(customerID uint64) (models.Customer, error)
 	Count(config request_util.PaginationConfig) (int, error)
 }

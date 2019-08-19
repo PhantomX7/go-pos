@@ -3,9 +3,9 @@ package models
 import "time"
 
 type Invoice struct {
-	ID             int64      `json:"id"`
+	ID             uint64      `json:"id"`
 	ImageUrl       *string    `json:"image_url"`
-	CustomerId     int64      `json:"-"`
+	CustomerId     uint64      `json:"-"`
 	TotalCapital   float64    `json:"total_capital"`
 	TotalSellPrice float64    `json:"total_sell_price"`
 	TotalProfit    float64    `json:"total_profit"`

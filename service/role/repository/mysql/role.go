@@ -61,7 +61,7 @@ func (r *RoleRepository) FindAll(config request_util.PaginationConfig) ([]models
 	return results, nil
 }
 
-func (r *RoleRepository) FindByID(roleID int64) (models.Role, error) {
+func (r *RoleRepository) FindByID(roleID uint64) (models.Role, error) {
 	model := models.Role{}
 
 	err := r.db.Where("id = ?", roleID).First(&model).Error

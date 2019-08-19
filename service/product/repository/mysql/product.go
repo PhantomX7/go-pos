@@ -3,8 +3,8 @@ package mysql
 import (
 	"log"
 
-	"github.com/PhantomX7/go-pos/service/product"
 	"github.com/PhantomX7/go-pos/models"
+	"github.com/PhantomX7/go-pos/service/product"
 	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/PhantomX7/go-pos/utils/request_util"
 	"github.com/jinzhu/gorm"
@@ -20,8 +20,12 @@ func NewProductRepository(db *gorm.DB) product.ProductRepository {
 	}
 }
 
-func (p *ProductRepository) Insert(product *models.Product) error {
-	err := p.db.Create(product).Error
+func (p *ProductRepository) Insert(product *models.Product, tx *gorm.DB) error {
+	var db = p.db
+	if tx != nil {
+		db = tx
+	}
+	err := db.Create(product).Error
 	if err != nil {
 		log.Println("error-insert-product:", err)
 		return errors.ErrUnprocessableEntity
@@ -29,8 +33,12 @@ func (p *ProductRepository) Insert(product *models.Product) error {
 	return nil
 }
 
-func (p *ProductRepository) Update(product *models.Product) error {
-	err := p.db.Save(product).Error
+func (p *ProductRepository) Update(product *models.Product, tx *gorm.DB) error {
+	var db = p.db
+	if tx != nil {
+		db = tx
+	}
+	err := db.Save(product).Error
 	if err != nil {
 		log.Println("error-update-product:", err)
 		return errors.ErrUnprocessableEntity
@@ -61,7 +69,7 @@ func (p *ProductRepository) FindAll(config request_util.PaginationConfig) ([]mod
 	return results, nil
 }
 
-func (p *ProductRepository) FindByID(productID int64) (models.Product, error) {
+func (p *ProductRepository) FindByID(productID uint64) (models.Product, error) {
 	model := models.Product{}
 
 	err := p.db.Where("id = ?", productID).First(&model).Error

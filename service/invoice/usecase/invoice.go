@@ -1,11 +1,11 @@
 package usecase
 
 import (
+	"github.com/PhantomX7/go-pos/entity"
+	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/service/customer"
 	"github.com/PhantomX7/go-pos/service/invoice"
 	"github.com/PhantomX7/go-pos/service/invoice/delivery/http/request"
-	"github.com/PhantomX7/go-pos/entity"
-	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/utils/response_util"
 	"github.com/jinzhu/copier"
 )
@@ -35,14 +35,14 @@ func (a *InvoiceUsecase) Create(request request.InvoiceCreateRequest) (models.In
 		TotalSellPrice: 0,
 		TotalProfit:    0,
 	}
-	err := a.invoiceRepo.Insert(&invoiceM)
+	err := a.invoiceRepo.Insert(&invoiceM, nil)
 	if err != nil {
 		return invoiceM, err
 	}
 	return invoiceM, nil
 }
 
-func (a *InvoiceUsecase) Update(invoiceID int64, request request.InvoiceUpdateRequest) (models.Invoice, error) {
+func (a *InvoiceUsecase) Update(invoiceID uint64, request request.InvoiceUpdateRequest) (models.Invoice, error) {
 	invoiceM, err := a.invoiceRepo.FindByID(invoiceID)
 	if err != nil {
 		return invoiceM, err
@@ -51,15 +51,15 @@ func (a *InvoiceUsecase) Update(invoiceID int64, request request.InvoiceUpdateRe
 	// copy content of request into request model found by id
 	_ = copier.Copy(&invoiceM, &request)
 
-	err = a.invoiceRepo.Update(&invoiceM)
+	err = a.invoiceRepo.Update(&invoiceM, nil)
 	if err != nil {
 		return invoiceM, err
 	}
 	return invoiceM, nil
 }
 
-func (a *InvoiceUsecase) Delete(invoiceID int64) error {
-	err := a.invoiceRepo.Delete(&models.Invoice{ID: invoiceID})
+func (a *InvoiceUsecase) Delete(invoiceID uint64) error {
+	err := a.invoiceRepo.Delete(&models.Invoice{ID: invoiceID}, nil)
 	if err != nil {
 		return err
 	}
@@ -95,6 +95,6 @@ func (a *InvoiceUsecase) Index(paginationConfig request.InvoicePaginationConfig)
 	return res, meta, nil
 }
 
-func (a *InvoiceUsecase) Show(invoiceID int64) (models.Invoice, error) {
+func (a *InvoiceUsecase) Show(invoiceID uint64) (models.Invoice, error) {
 	return a.invoiceRepo.FindByID(invoiceID)
 }

@@ -8,8 +8,8 @@ import (
 
 type CustomerUsecase interface {
 	Create(request request.CustomerCreateRequest) (models.Customer, error)
-	Update(customerID int64, request request.CustomerUpdateRequest) (models.Customer, error)
-	Delete(customerID int64) error
+	Update(customerID uint64, request request.CustomerUpdateRequest) (models.Customer, error)
+	Delete(customerID uint64) error
 	Index(paginationConfig request.CustomerPaginationConfig) ([]models.Customer, response_util.PaginationMeta, error)
 	Show(customerID int64) (models.Customer, error)
 }

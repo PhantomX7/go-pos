@@ -3,8 +3,8 @@ package mysql
 import (
 	"log"
 
-	"github.com/PhantomX7/go-pos/service/invoice"
 	"github.com/PhantomX7/go-pos/models"
+	"github.com/PhantomX7/go-pos/service/invoice"
 	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/PhantomX7/go-pos/utils/request_util"
 	"github.com/jinzhu/gorm"
@@ -20,8 +20,12 @@ func NewInvoiceRepository(db *gorm.DB) invoice.InvoiceRepository {
 	}
 }
 
-func (i *InvoiceRepository) Insert(invoice *models.Invoice) error {
-	err := i.db.Create(invoice).Error
+func (i *InvoiceRepository) Insert(invoice *models.Invoice, tx *gorm.DB) error {
+	var db = i.db
+	if tx != nil {
+		db = tx
+	}
+	err := db.Create(invoice).Error
 	if err != nil {
 		log.Println("error-insert-invoice:", err)
 		return errors.ErrUnprocessableEntity
@@ -29,8 +33,12 @@ func (i *InvoiceRepository) Insert(invoice *models.Invoice) error {
 	return nil
 }
 
-func (i *InvoiceRepository) Update(invoice *models.Invoice) error {
-	err := i.db.Save(invoice).Error
+func (i *InvoiceRepository) Update(invoice *models.Invoice, tx *gorm.DB) error {
+	var db = i.db
+	if tx != nil {
+		db = tx
+	}
+	err := db.Save(invoice).Error
 	if err != nil {
 		log.Println("error-update-invoice:", err)
 		return errors.ErrUnprocessableEntity
@@ -38,8 +46,12 @@ func (i *InvoiceRepository) Update(invoice *models.Invoice) error {
 	return nil
 }
 
-func (i *InvoiceRepository) Delete(invoice *models.Invoice) error {
-	err := i.db.Delete(invoice).Error
+func (i *InvoiceRepository) Delete(invoice *models.Invoice, tx *gorm.DB) error {
+	var db = i.db
+	if tx != nil {
+		db = tx
+	}
+	err := db.Delete(invoice).Error
 	if err != nil {
 		log.Println("error-delete-invoice:", err)
 		return errors.ErrUnprocessableEntity

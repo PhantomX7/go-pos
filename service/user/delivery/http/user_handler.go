@@ -54,7 +54,7 @@ func (h *UserHandler) Create(c *gin.Context) {
 
 func (h *UserHandler) Update(c *gin.Context) {
 	var req request.UserUpdateRequest
-	userID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	userID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		_ = c.Error(errors.ErrUnprocessableEntity).SetType(gin.ErrorTypePublic)
 	}
@@ -88,7 +88,7 @@ func (h *UserHandler) Index(c *gin.Context) {
 }
 
 func (h *UserHandler) Show(c *gin.Context) {
-	userID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	userID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		_ = c.Error(errors.ErrUnprocessableEntity).SetType(gin.ErrorTypePublic)
 	}

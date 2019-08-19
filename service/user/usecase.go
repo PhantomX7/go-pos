@@ -9,7 +9,7 @@ import (
 
 type UserUsecase interface {
 	Create(request request.UserCreateRequest) (models.User, error)
-	Update(userID int64, request request.UserUpdateRequest) (models.User, error)
+	Update(userID uint64, request request.UserUpdateRequest) (models.User, error)
 	Index(paginationConfig request_util.PaginationConfig) ([]models.User, response_util.PaginationMeta, error)
-	Show(userID int64) (models.User, error)
+	Show(userID uint64) (models.User, error)
 }

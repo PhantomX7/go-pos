@@ -33,7 +33,7 @@ func (a *CustomerUsecase) Create(request request.CustomerCreateRequest) (models.
 	return customerM, nil
 }
 
-func (a *CustomerUsecase) Update(customerID int64, request request.CustomerUpdateRequest) (models.Customer, error) {
+func (a *CustomerUsecase) Update(customerID uint64, request request.CustomerUpdateRequest) (models.Customer, error) {
 	customerM, err := a.customerRepo.FindByID(customerID)
 	if err != nil {
 		return customerM, err
@@ -49,7 +49,7 @@ func (a *CustomerUsecase) Update(customerID int64, request request.CustomerUpdat
 	return customerM, nil
 }
 
-func (a *CustomerUsecase) Delete(customerID int64) error {
+func (a *CustomerUsecase) Delete(customerID uint64) error {
 	err := a.customerRepo.Delete(&models.Customer{ID: customerID})
 	if err != nil {
 		return err
@@ -80,6 +80,6 @@ func (a *CustomerUsecase) Index(paginationConfig request.CustomerPaginationConfi
 	return customers, meta, nil
 }
 
-func (a *CustomerUsecase) Show(customerID int64) (models.Customer, error) {
+func (a *CustomerUsecase) Show(customerID uint64) (models.Customer, error) {
 	return a.customerRepo.FindByID(customerID)
 }

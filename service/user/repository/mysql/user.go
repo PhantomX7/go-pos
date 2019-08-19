@@ -51,7 +51,7 @@ func (a *UserRepository) FindAll(config request_util.PaginationConfig) ([]models
 	return nil, response_util.PaginationMeta{}, nil
 }
 
-func (a *UserRepository) FindByID(userID int64) (models.User, error) {
+func (a *UserRepository) FindByID(userID uint64) (models.User, error) {
 	model := models.User{}
 
 	err := a.db.Where("id = ?", userID).First(&model).Error

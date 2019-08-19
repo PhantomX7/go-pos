@@ -1,9 +1,9 @@
 package usecase
 
 import (
+	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/service/product"
 	"github.com/PhantomX7/go-pos/service/product/delivery/http/request"
-	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/utils/response_util"
 	"github.com/jinzhu/copier"
 )
@@ -32,14 +32,14 @@ func (a *ProductUsecase) Create(request request.ProductCreateRequest) (models.Pr
 		SellPriceCash:   request.SellPriceCash,
 		SellPriceCredit: request.SellPriceCredit,
 	}
-	err := a.productRepo.Insert(&productM)
+	err := a.productRepo.Insert(&productM, nil)
 	if err != nil {
 		return productM, err
 	}
 	return productM, nil
 }
 
-func (a *ProductUsecase) Update(productID int64, request request.ProductUpdateRequest) (models.Product, error) {
+func (a *ProductUsecase) Update(productID uint64, request request.ProductUpdateRequest) (models.Product, error) {
 	productM, err := a.productRepo.FindByID(productID)
 	if err != nil {
 		return productM, err
@@ -48,7 +48,7 @@ func (a *ProductUsecase) Update(productID int64, request request.ProductUpdateRe
 	// copy content of request into request model found by id
 	_ = copier.Copy(&productM, &request)
 
-	err = a.productRepo.Update(&productM)
+	err = a.productRepo.Update(&productM, nil)
 	if err != nil {
 		return productM, err
 	}
@@ -74,6 +74,6 @@ func (a *ProductUsecase) Index(paginationConfig request.ProductPaginationConfig)
 	return products, meta, nil
 }
 
-func (a *ProductUsecase) Show(productID int64) (models.Product, error) {
+func (a *ProductUsecase) Show(productID uint64) (models.Product, error) {
 	return a.productRepo.FindByID(productID)
 }

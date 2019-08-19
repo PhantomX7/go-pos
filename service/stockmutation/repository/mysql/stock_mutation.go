@@ -3,8 +3,8 @@ package mysql
 import (
 	"log"
 
-	"github.com/PhantomX7/go-pos/service/stockmutation"
 	"github.com/PhantomX7/go-pos/models"
+	"github.com/PhantomX7/go-pos/service/stockmutation"
 	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/PhantomX7/go-pos/utils/request_util"
 	"github.com/jinzhu/gorm"
@@ -20,8 +20,12 @@ func NewStockMutationRepository(db *gorm.DB) stockmutation.StockMutationReposito
 	}
 }
 
-func (i *StockMutationRepository) Insert(stockMutation *models.StockMutation) error {
-	err := i.db.Create(stockMutation).Error
+func (i *StockMutationRepository) Insert(stockMutation *models.StockMutation, tx *gorm.DB) error {
+	var db = i.db
+	if tx != nil {
+		db = tx
+	}
+	err := db.Create(stockMutation).Error
 	if err != nil {
 		log.Println("error-insert-stockMutation:", err)
 		return errors.ErrUnprocessableEntity
@@ -52,7 +56,7 @@ func (i *StockMutationRepository) FindAll(config request_util.PaginationConfig) 
 	return results, nil
 }
 
-func (i *StockMutationRepository) FindByID(stockMutationID int64) (models.StockMutation, error) {
+func (i *StockMutationRepository) FindByID(stockMutationID uint64) (models.StockMutation, error) {
 	model := models.StockMutation{}
 
 	err := i.db.Where("id = ?", stockMutationID).First(&model).Error
@@ -69,7 +73,7 @@ func (i *StockMutationRepository) FindByID(stockMutationID int64) (models.StockM
 	return model, nil
 }
 
-func (i *StockMutationRepository) FindByProductID(productID int64) (models.StockMutation, error) {
+func (i *StockMutationRepository) FindByProductID(productID uint64) (models.StockMutation, error) {
 	model := models.StockMutation{}
 
 	err := i.db.Where("product_id = ?", productID).First(&model).Error

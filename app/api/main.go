@@ -20,6 +20,7 @@ import (
 
 	"github.com/PhantomX7/go-pos/app/api/middleware"
 	"github.com/PhantomX7/go-pos/app/api/server"
+	"github.com/PhantomX7/go-pos/utils/database"
 	"github.com/PhantomX7/go-pos/utils/validators"
 
 	authHTTP "github.com/PhantomX7/go-pos/service/auth/delivery/http"
@@ -67,6 +68,10 @@ type repositories struct {
 func main() {
 	loadEnv()
 	db := setupDatabase()
+
+	// for transactions
+	database.InitDB(db)
+
 	// init custom validator
 	validators.NewValidator(db)
 
@@ -196,6 +201,9 @@ func resolveInvoiceHandler(repositories repositories) server.Handler {
 func resolveTransactionHandler(repositories repositories) server.Handler {
 	transactionUC := transactionUsecase.NewTransactionUsecase(
 		repositories.transactionRepository,
+		repositories.stockMutationRepository,
+		repositories.invoiceRepository,
+		repositories.productRepository,
 	)
 	return transactionHTTP.NewTransactionHandler(transactionUC)
 }

@@ -38,7 +38,7 @@ func (cv *cValidator) Unique() func(
 	}
 }
 
-// check if value of request is unique in database
+// check if value of request is exist in database
 // tag format : exist=tablename.columnname
 func (cv *cValidator) Exist() func(
 	v *validator.Validate, topStruct reflect.Value, currentStructOrField reflect.Value,

@@ -54,7 +54,7 @@ func (h *TransactionHandler) Create(c *gin.Context) {
 
 func (h *TransactionHandler) Update(c *gin.Context) {
 	var req request.TransactionUpdateRequest
-	transactionID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	transactionID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		_ = c.Error(errors.ErrNotFound).SetType(gin.ErrorTypePublic)
 	}
@@ -75,7 +75,7 @@ func (h *TransactionHandler) Update(c *gin.Context) {
 }
 
 func (h *TransactionHandler) Delete(c *gin.Context) {
-	transactionID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	transactionID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		_ = c.Error(errors.ErrNotFound).SetType(gin.ErrorTypePublic)
 	}
@@ -103,7 +103,7 @@ func (h *TransactionHandler) Index(c *gin.Context) {
 }
 
 func (h *TransactionHandler) Show(c *gin.Context) {
-	transactionID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	transactionID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		_ = c.Error(errors.ErrNotFound).SetType(gin.ErrorTypePublic)
 	}

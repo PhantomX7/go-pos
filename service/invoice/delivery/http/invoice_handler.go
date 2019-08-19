@@ -55,7 +55,7 @@ func (h *InvoiceHandler) Create(c *gin.Context) {
 
 func (h *InvoiceHandler) Update(c *gin.Context) {
 	var req request.InvoiceUpdateRequest
-	invoiceID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	invoiceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		_ = c.Error(errors.ErrNotFound).SetType(gin.ErrorTypePublic)
 	}
@@ -76,7 +76,7 @@ func (h *InvoiceHandler) Update(c *gin.Context) {
 }
 
 func (h *InvoiceHandler) Delete(c *gin.Context) {
-	invoiceID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	invoiceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		_ = c.Error(errors.ErrNotFound).SetType(gin.ErrorTypePublic)
 	}
@@ -104,7 +104,7 @@ func (h *InvoiceHandler) Index(c *gin.Context) {
 }
 
 func (h *InvoiceHandler) Show(c *gin.Context) {
-	invoiceID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	invoiceID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		_ = c.Error(errors.ErrNotFound).SetType(gin.ErrorTypePublic)
 	}

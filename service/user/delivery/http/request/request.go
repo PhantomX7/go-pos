@@ -1,7 +1,6 @@
 package request
 
 import (
-	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/utils/request_util"
 )
 
@@ -10,14 +9,6 @@ type UserCreateRequest struct {
 	Username string `form:"username" binding:"required,unique=users.username"`
 	Password string `form:"password" binding:"required"`
 	RoleId   int    `form:"role_id" binding:"required,exist=roles.id"`
-}
-
-func (request UserCreateRequest) ToUserModel() models.User {
-	return models.User{
-		Username: request.Username,
-		Password: request.Password,
-		RoleId:   int64(request.RoleId),
-	}
 }
 
 type UserUpdateRequest struct {

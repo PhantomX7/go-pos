@@ -55,7 +55,7 @@ func (h *CustomerHandler) Create(c *gin.Context) {
 
 func (h *CustomerHandler) Update(c *gin.Context) {
 	var req request.CustomerUpdateRequest
-	customerID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	customerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		_ = c.Error(errors.ErrNotFound).SetType(gin.ErrorTypePublic)
 	}
@@ -76,7 +76,7 @@ func (h *CustomerHandler) Update(c *gin.Context) {
 }
 
 func (h *CustomerHandler) Delete(c *gin.Context) {
-	customerID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	customerID, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
 		_ = c.Error(errors.ErrNotFound).SetType(gin.ErrorTypePublic)
 	}
