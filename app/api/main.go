@@ -3,12 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/PhantomX7/go-pos/case/customer"
-	"github.com/PhantomX7/go-pos/case/invoice"
-	"github.com/PhantomX7/go-pos/case/product"
-	"github.com/PhantomX7/go-pos/case/role"
-	"github.com/PhantomX7/go-pos/case/stockmutation"
-	"github.com/PhantomX7/go-pos/case/user"
 	"log"
 	"net/http"
 	"os"
@@ -16,32 +10,44 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/PhantomX7/go-pos/service/customer"
+	"github.com/PhantomX7/go-pos/service/invoice"
+	"github.com/PhantomX7/go-pos/service/product"
+	"github.com/PhantomX7/go-pos/service/role"
+	"github.com/PhantomX7/go-pos/service/stockmutation"
+	"github.com/PhantomX7/go-pos/service/transaction"
+	"github.com/PhantomX7/go-pos/service/user"
+
 	"github.com/PhantomX7/go-pos/app/api/middleware"
 	"github.com/PhantomX7/go-pos/app/api/server"
 	"github.com/PhantomX7/go-pos/utils/validators"
 
-	authHTTP "github.com/PhantomX7/go-pos/case/auth/delivery/http"
-	authUsecase "github.com/PhantomX7/go-pos/case/auth/usecase"
+	authHTTP "github.com/PhantomX7/go-pos/service/auth/delivery/http"
+	authUsecase "github.com/PhantomX7/go-pos/service/auth/usecase"
 
-	customerHTTP "github.com/PhantomX7/go-pos/case/customer/delivery/http"
-	customerRepo "github.com/PhantomX7/go-pos/case/customer/repository/mysql"
-	customerUsecase "github.com/PhantomX7/go-pos/case/customer/usecase"
+	customerHTTP "github.com/PhantomX7/go-pos/service/customer/delivery/http"
+	customerRepo "github.com/PhantomX7/go-pos/service/customer/repository/mysql"
+	customerUsecase "github.com/PhantomX7/go-pos/service/customer/usecase"
 
-	invoiceHTTP "github.com/PhantomX7/go-pos/case/invoice/delivery/http"
-	invoiceRepo "github.com/PhantomX7/go-pos/case/invoice/repository/mysql"
-	invoiceUsecase "github.com/PhantomX7/go-pos/case/invoice/usecase"
+	invoiceHTTP "github.com/PhantomX7/go-pos/service/invoice/delivery/http"
+	invoiceRepo "github.com/PhantomX7/go-pos/service/invoice/repository/mysql"
+	invoiceUsecase "github.com/PhantomX7/go-pos/service/invoice/usecase"
 
-	productHTTP "github.com/PhantomX7/go-pos/case/product/delivery/http"
-	productRepo "github.com/PhantomX7/go-pos/case/product/repository/mysql"
-	productUsecase "github.com/PhantomX7/go-pos/case/product/usecase"
+	productHTTP "github.com/PhantomX7/go-pos/service/product/delivery/http"
+	productRepo "github.com/PhantomX7/go-pos/service/product/repository/mysql"
+	productUsecase "github.com/PhantomX7/go-pos/service/product/usecase"
 
-	roleRepo "github.com/PhantomX7/go-pos/case/role/repository/mysql"
+	roleRepo "github.com/PhantomX7/go-pos/service/role/repository/mysql"
 
-	stockMutationRepo "github.com/PhantomX7/go-pos/case/stockmutation/repository/mysql"
+	stockMutationRepo "github.com/PhantomX7/go-pos/service/stockmutation/repository/mysql"
 
-	userHTTP "github.com/PhantomX7/go-pos/case/user/delivery/http"
-	userRepo "github.com/PhantomX7/go-pos/case/user/repository/mysql"
-	userUsecase "github.com/PhantomX7/go-pos/case/user/usecase"
+	transactionHTTP "github.com/PhantomX7/go-pos/service/transaction/delivery/http"
+	transactionRepo "github.com/PhantomX7/go-pos/service/transaction/repository/mysql"
+	transactionUsecase "github.com/PhantomX7/go-pos/service/transaction/usecase"
+
+	userHTTP "github.com/PhantomX7/go-pos/service/user/delivery/http"
+	userRepo "github.com/PhantomX7/go-pos/service/user/repository/mysql"
+	userUsecase "github.com/PhantomX7/go-pos/service/user/usecase"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
@@ -55,6 +61,7 @@ type repositories struct {
 	customerRepository      customer.CustomerRepository
 	invoiceRepository       invoice.InvoiceRepository
 	stockMutationRepository stockmutation.StockMutationRepository
+	transactionRepository   transaction.TransactionRepository
 }
 
 func main() {
@@ -70,12 +77,14 @@ func main() {
 	productHandler := resolveProductHandler(repositories)
 	customerHandler := resolveCustomerHandler(repositories)
 	invoiceHandler := resolveInvoiceHandler(repositories)
+	transactionHandler := resolveTransactionHandler(repositories)
 	startServer(
 		userHandler,
 		authHandler,
 		productHandler,
 		customerHandler,
 		invoiceHandler,
+		transactionHandler,
 	)
 }
 
@@ -184,6 +193,13 @@ func resolveInvoiceHandler(repositories repositories) server.Handler {
 	return invoiceHTTP.NewInvoiceHandler(invoiceUC)
 }
 
+func resolveTransactionHandler(repositories repositories) server.Handler {
+	transactionUC := transactionUsecase.NewTransactionUsecase(
+		repositories.transactionRepository,
+	)
+	return transactionHTTP.NewTransactionHandler(transactionUC)
+}
+
 func initRepository(db *gorm.DB) repositories {
 	return repositories{
 		userRepository:          userRepo.NewUserRepository(db),
@@ -192,5 +208,6 @@ func initRepository(db *gorm.DB) repositories {
 		customerRepository:      customerRepo.NewCustomerRepository(db),
 		invoiceRepository:       invoiceRepo.NewInvoiceRepository(db),
 		stockMutationRepository: stockMutationRepo.NewStockMutationRepository(db),
+		transactionRepository:   transactionRepo.NewTransactionRepository(db),
 	}
 }
