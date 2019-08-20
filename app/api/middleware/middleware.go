@@ -54,9 +54,9 @@ func (m *Middleware) ErrorHandle() gin.HandlerFunc {
 						// check if it is part of custom error
 						if err, ok := e.Err.(errors.CustomError); ok {
 							// print the underlying error and return the specified message to user
-							c.JSON(err.HTTPCode, gin.H{"error": err.Message})
+							c.JSON(err.HTTPCode, gin.H{"errors": err.Message})
 						} else {
-							c.JSON(c.Writer.Status(), gin.H{"error": e.Error()})
+							c.JSON(c.Writer.Status(), gin.H{"errors": e.Error()})
 						}
 
 					}

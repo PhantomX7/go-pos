@@ -1,6 +1,7 @@
 package errors
 
 import (
+	"fmt"
 	"net/http"
 )
 
@@ -39,12 +40,12 @@ var (
 
 // CustomError holds data for customized error
 type CustomError struct {
-	Message  string `json:"message"`
+	Message  interface{} `json:"message"`
 	HTTPCode int    `json:"code"`
 }
 
 // Error is a function to convert error to string.
 // It exists to satisfy error interface
 func (c CustomError) Error() string {
-	return c.Message
+	return fmt.Sprint(c.Message)
 }

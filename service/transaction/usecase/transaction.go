@@ -8,6 +8,7 @@ import (
 	"github.com/PhantomX7/go-pos/service/transaction"
 	"github.com/PhantomX7/go-pos/service/transaction/delivery/http/request"
 	"github.com/PhantomX7/go-pos/utils/database"
+	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/PhantomX7/go-pos/utils/response_util"
 	"github.com/jinzhu/copier"
 )
@@ -61,6 +62,11 @@ func (t *TransactionUsecase) Create(request request.TransactionCreateRequest) (m
 	}
 	// reduce the stock
 	productM.Stock -= request.Amount
+	if productM.Stock < 0 {
+		err := errors.ErrUnprocessableEntity
+		err.Message = map[string]string{"amount": "invalid amount"}
+		return transactionM, err
+	}
 
 	err = t.productRepo.Update(&productM, tx)
 	if err != nil {
@@ -138,6 +144,11 @@ func (t *TransactionUsecase) Update(transactionID uint64, request request.Transa
 	}
 
 	productM.Stock += transactionM.Amount - request.Amount
+	if productM.Stock < 0 {
+		err := errors.ErrUnprocessableEntity
+		err.Message = map[string]string{"amount": "invalid amount"}
+		return transactionM, err
+	}
 
 	err = t.productRepo.Update(&productM, tx)
 	if err != nil {
