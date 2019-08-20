@@ -15,9 +15,9 @@ type TransactionCreateRequest struct {
 }
 
 type TransactionUpdateRequest struct {
-	CapitalPrice *float64 `form:"capital_price"`
-	SellPrice    *float64 `form:"sell_price"`
-	Amount       *float64 `form:"amount"`
+	CapitalPrice float64 `form:"capital_price"`
+	SellPrice    float64 `form:"sell_price"`
+	Amount       float64 `form:"amount"`
 }
 
 type TransactionPaginationConfig struct {
@@ -29,12 +29,11 @@ type TransactionPaginationConfig struct {
 
 func NewTransactionPaginationConfig(conditions map[string][]string) TransactionPaginationConfig {
 	filterable := map[string]string{
-		"id":             request_util.IdType,
-		"customer_id":    request_util.IdType,
-		"date":           request_util.DateType,
-		"payment_status": request_util.BoolType,
-		"payment_type":   request_util.StringType,
-		"description":    request_util.StringType,
+		"id":            request_util.IdType,
+		"invoice_id":    request_util.IdType,
+		"product_id":    request_util.IdType,
+		"capital_price": request_util.NumberType,
+		"sell_price":    request_util.NumberType,
 	}
 
 	transactionPaginationConfig := TransactionPaginationConfig{

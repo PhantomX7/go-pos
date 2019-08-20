@@ -194,6 +194,7 @@ func resolveInvoiceHandler(repositories repositories) server.Handler {
 	invoiceUC := invoiceUsecase.NewInvoiceUsecase(
 		repositories.invoiceRepository,
 		repositories.customerRepository,
+		repositories.transactionRepository,
 	)
 	return invoiceHTTP.NewInvoiceHandler(invoiceUC)
 }

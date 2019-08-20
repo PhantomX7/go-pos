@@ -96,7 +96,7 @@ func (t *TransactionUsecase) Create(request request.TransactionCreateRequest) (m
 	tx.Commit()
 
 	// update invoice data
-	invoice.UpdateInvoice(invoiceM.ID, t.transactionRepo, t.invoiceRepo)
+	invoice.UpdateInvoice(transactionM.InvoiceId, t.transactionRepo, t.invoiceRepo)
 
 	return transactionM, nil
 }
@@ -107,21 +107,103 @@ func (t *TransactionUsecase) Update(transactionID uint64, request request.Transa
 		return transactionM, err
 	}
 
+	// init transaction
+	tx := database.BeginTransactions()
+
+	// delete previous stock mutation
+	err = t.stockMutationRepo.Delete(&models.StockMutation{ID: transactionM.ID}, tx)
+	if err != nil {
+		tx.Rollback()
+		return transactionM, err
+	}
+
+	stockMutationM := models.StockMutation{
+		ProductID: transactionM.ProductId,
+		Amount:    request.Amount,
+		Type:      models.StockMutationOUT,
+	}
+
+	// create new stock mutation
+	err = t.stockMutationRepo.Insert(&stockMutationM, tx)
+	if err != nil {
+		tx.Rollback()
+		return transactionM, err
+	}
+
+	// re-update product stock
+	productM, err := t.productRepo.FindByID(transactionM.ProductId)
+	if err != nil {
+		tx.Rollback()
+		return transactionM, err
+	}
+
+	productM.Stock += transactionM.Amount - request.Amount
+
+	err = t.productRepo.Update(&productM, tx)
+	if err != nil {
+		tx.Rollback()
+		return transactionM, err
+	}
+
 	// copy content of request into request model found by id
 	_ = copier.Copy(&transactionM, &request)
 
-	err = t.transactionRepo.Update(&transactionM, nil)
+	err = t.transactionRepo.Update(&transactionM, tx)
 	if err != nil {
+		tx.Rollback()
 		return transactionM, err
 	}
+
+	tx.Commit()
+
+	// update invoice data
+	invoice.UpdateInvoice(transactionM.InvoiceId, t.transactionRepo, t.invoiceRepo)
+
 	return transactionM, nil
 }
 
 func (t *TransactionUsecase) Delete(transactionID uint64) error {
-	err := t.transactionRepo.Delete(&models.Transaction{ID: transactionID}, nil)
+	transactionM, err := t.transactionRepo.FindByID(transactionID)
 	if err != nil {
 		return err
 	}
+
+	// init transaction
+	tx := database.BeginTransactions()
+
+	// delete previous stock mutation
+	err = t.stockMutationRepo.Delete(&models.StockMutation{ID: transactionM.ID}, tx)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// re-update product stock
+	productM, err := t.productRepo.FindByID(transactionM.ProductId)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	productM.Stock += transactionM.Amount
+
+	err = t.productRepo.Update(&productM, tx)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// delete transaction
+	err = t.transactionRepo.Delete(&transactionM, tx)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+
+	// update invoice data
+	invoice.UpdateInvoice(transactionM.InvoiceId, t.transactionRepo, t.invoiceRepo)
 
 	return nil
 }

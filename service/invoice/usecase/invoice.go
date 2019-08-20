@@ -6,6 +6,7 @@ import (
 	"github.com/PhantomX7/go-pos/service/customer"
 	"github.com/PhantomX7/go-pos/service/invoice"
 	"github.com/PhantomX7/go-pos/service/invoice/delivery/http/request"
+	"github.com/PhantomX7/go-pos/service/transaction"
 	"github.com/PhantomX7/go-pos/utils/response_util"
 	"github.com/jinzhu/copier"
 )
@@ -13,14 +14,20 @@ import (
 // apply business logic here
 
 type InvoiceUsecase struct {
-	invoiceRepo  invoice.InvoiceRepository
-	customerRepo customer.CustomerRepository
+	invoiceRepo     invoice.InvoiceRepository
+	customerRepo    customer.CustomerRepository
+	transactionRepo transaction.TransactionRepository
 }
 
-func NewInvoiceUsecase(invoiceRepo invoice.InvoiceRepository, customerRepo customer.CustomerRepository) invoice.InvoiceUsecase {
+func NewInvoiceUsecase(
+	invoiceRepo invoice.InvoiceRepository,
+	customerRepo customer.CustomerRepository,
+	transactionRepo transaction.TransactionRepository,
+) invoice.InvoiceUsecase {
 	return &InvoiceUsecase{
-		invoiceRepo:  invoiceRepo,
-		customerRepo: customerRepo,
+		invoiceRepo:     invoiceRepo,
+		customerRepo:    customerRepo,
+		transactionRepo: transactionRepo,
 	}
 }
 
@@ -82,7 +89,11 @@ func (a *InvoiceUsecase) Index(paginationConfig request.InvoicePaginationConfig)
 
 	for _, inv := range invoices {
 		c, _ := a.customerRepo.FindByID(inv.CustomerId)
-		res = append(res, entity.InvoiceDetail{Invoice: inv, Customer: &c})
+		t, _ := a.transactionRepo.FindByInvoiceID(inv.ID)
+		res = append(res, entity.InvoiceDetail{
+			Invoice:      inv,
+			Customer:     &c,
+			Transactions: t})
 	}
 
 	total, err := a.invoiceRepo.Count(paginationConfig)
