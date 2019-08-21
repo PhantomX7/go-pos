@@ -1,6 +1,7 @@
 package http
 
 import (
+	"github.com/PhantomX7/go-pos/service/invoice"
 	"github.com/PhantomX7/go-pos/service/transaction"
 	"github.com/PhantomX7/go-pos/service/transaction/delivery/http/request"
 	"github.com/PhantomX7/go-pos/utils/errors"
@@ -14,11 +15,13 @@ import (
 
 type TransactionHandler struct {
 	transactionUsecase transaction.TransactionUsecase
+	invoiceUsecase     invoice.InvoiceUsecase
 }
 
-func NewTransactionHandler(transactionUC transaction.TransactionUsecase) server.Handler {
+func NewTransactionHandler(transactionUC transaction.TransactionUsecase, invoiceUC invoice.InvoiceUsecase) server.Handler {
 	return &TransactionHandler{
 		transactionUsecase: transactionUC,
+		invoiceUsecase:     invoiceUC,
 	}
 }
 
@@ -26,7 +29,7 @@ func (h *TransactionHandler) Register(r *gin.RouterGroup, m *middleware.Middlewa
 
 	transactionRoute := r.Group("/transaction", m.AuthHandle())
 	{
-		transactionRoute.GET("/", h.Index)
+		//transactionRoute.GET("/", h.Index)
 		transactionRoute.GET("/:id", h.Show)
 		transactionRoute.POST("/", h.Create)
 		transactionRoute.PUT("/:id", h.Update)
@@ -43,7 +46,15 @@ func (h *TransactionHandler) Create(c *gin.Context) {
 		return
 	}
 
+	// create transaction
 	transactionModel, err := h.transactionUsecase.Create(req)
+	if err != nil {
+		_ = c.Error(err).SetType(gin.ErrorTypePublic)
+		return
+	}
+
+	// sync invoice
+	err = h.invoiceUsecase.SyncInvoice(transactionModel.InvoiceId)
 	if err != nil {
 		_ = c.Error(err).SetType(gin.ErrorTypePublic)
 		return
@@ -71,6 +82,13 @@ func (h *TransactionHandler) Update(c *gin.Context) {
 		return
 	}
 
+	// sync invoice
+	err = h.invoiceUsecase.SyncInvoice(transactionModel.InvoiceId)
+	if err != nil {
+		_ = c.Error(err).SetType(gin.ErrorTypePublic)
+		return
+	}
+
 	c.JSON(http.StatusOK, transactionModel)
 }
 
@@ -80,7 +98,20 @@ func (h *TransactionHandler) Delete(c *gin.Context) {
 		_ = c.Error(errors.ErrNotFound).SetType(gin.ErrorTypePublic)
 	}
 
+	transactionModel, err := h.transactionUsecase.Show(transactionID)
+	if err != nil {
+		_ = c.Error(err).SetType(gin.ErrorTypePublic)
+		return
+	}
+
 	err = h.transactionUsecase.Delete(transactionID)
+	if err != nil {
+		_ = c.Error(err).SetType(gin.ErrorTypePublic)
+		return
+	}
+
+	// sync invoice
+	err = h.invoiceUsecase.SyncInvoice(transactionModel.InvoiceId)
 	if err != nil {
 		_ = c.Error(err).SetType(gin.ErrorTypePublic)
 		return
@@ -89,18 +120,18 @@ func (h *TransactionHandler) Delete(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func (h *TransactionHandler) Index(c *gin.Context) {
-	transactions, transactionPagination, err := h.transactionUsecase.Index(request.NewTransactionPaginationConfig(c.Request.URL.Query()))
-	if err != nil {
-		_ = c.Error(err).SetType(gin.ErrorTypePublic)
-		return
-	}
-
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"data": transactions,
-		"meta": transactionPagination,
-	})
-}
+//func (h *TransactionHandler) Index(c *gin.Context) {
+//	transactions, transactionPagination, err := h.transactionUsecase.Index(request.NewTransactionPaginationConfig(c.Request.URL.Query()))
+//	if err != nil {
+//		_ = c.Error(err).SetType(gin.ErrorTypePublic)
+//		return
+//	}
+//
+//	c.JSON(http.StatusOK, map[string]interface{}{
+//		"data": transactions,
+//		"meta": transactionPagination,
+//	})
+//}
 
 func (h *TransactionHandler) Show(c *gin.Context) {
 	transactionID, err := strconv.ParseUint(c.Param("id"), 10, 64)

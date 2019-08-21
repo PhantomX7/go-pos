@@ -4,7 +4,7 @@ import (
 	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/service/invoice"
 	"github.com/PhantomX7/go-pos/service/product"
-	"github.com/PhantomX7/go-pos/service/stockmutation"
+	"github.com/PhantomX7/go-pos/service/stock_mutation"
 	"github.com/PhantomX7/go-pos/service/transaction"
 	"github.com/PhantomX7/go-pos/service/transaction/delivery/http/request"
 	"github.com/PhantomX7/go-pos/utils/database"
@@ -17,14 +17,14 @@ import (
 
 type TransactionUsecase struct {
 	transactionRepo   transaction.TransactionRepository
-	stockMutationRepo stockmutation.StockMutationRepository
+	stockMutationRepo stock_mutation.StockMutationRepository
 	invoiceRepo       invoice.InvoiceRepository
 	productRepo       product.ProductRepository
 }
 
 func NewTransactionUsecase(
 	transactionRepo transaction.TransactionRepository,
-	stockMutationRepo stockmutation.StockMutationRepository,
+	stockMutationRepo stock_mutation.StockMutationRepository,
 	invoiceRepo invoice.InvoiceRepository,
 	productRepo product.ProductRepository,
 ) transaction.TransactionUsecase {
@@ -101,9 +101,6 @@ func (t *TransactionUsecase) Create(request request.TransactionCreateRequest) (m
 
 	tx.Commit()
 
-	// update invoice data
-	invoice.UpdateInvoice(transactionM.InvoiceId, t.transactionRepo, t.invoiceRepo)
-
 	return transactionM, nil
 }
 
@@ -167,9 +164,6 @@ func (t *TransactionUsecase) Update(transactionID uint64, request request.Transa
 
 	tx.Commit()
 
-	// update invoice data
-	invoice.UpdateInvoice(transactionM.InvoiceId, t.transactionRepo, t.invoiceRepo)
-
 	return transactionM, nil
 }
 
@@ -212,9 +206,6 @@ func (t *TransactionUsecase) Delete(transactionID uint64) error {
 	}
 
 	tx.Commit()
-
-	// update invoice data
-	invoice.UpdateInvoice(transactionM.InvoiceId, t.transactionRepo, t.invoiceRepo)
 
 	return nil
 }

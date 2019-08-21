@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/PhantomX7/go-pos/models"
-	"github.com/PhantomX7/go-pos/service/stockmutation"
+	"github.com/PhantomX7/go-pos/service/stock_mutation"
 	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/PhantomX7/go-pos/utils/request_util"
 	"github.com/jinzhu/gorm"
@@ -14,7 +14,7 @@ type StockMutationRepository struct {
 	db *gorm.DB
 }
 
-func NewStockMutationRepository(db *gorm.DB) stockmutation.StockMutationRepository {
+func NewStockMutationRepository(db *gorm.DB) stock_mutation.StockMutationRepository {
 	return &StockMutationRepository{
 		db: db,
 	}

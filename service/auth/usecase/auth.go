@@ -106,7 +106,7 @@ func generateTokenString(user models.User, role models.Role) (string, error) {
 		Username: user.Username,
 		Role:     role.Name,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Minute * 180).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 180).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
 	})

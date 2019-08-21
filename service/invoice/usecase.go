@@ -13,7 +13,8 @@ type InvoiceUsecase interface {
 	Update(invoiceID uint64, request request.InvoiceUpdateRequest) (models.Invoice, error)
 	Delete(invoiceID uint64) error
 	Index(paginationConfig request.InvoicePaginationConfig) ([]entity.InvoiceDetail, response_util.PaginationMeta, error)
-	Show(invoiceID uint64) (models.Invoice, error)
+	Show(invoiceID uint64) (entity.InvoiceDetail, error)
+	SyncInvoice(invoiceID uint64) error
 }
 
 func UpdateInvoice(

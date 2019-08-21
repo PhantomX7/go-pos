@@ -6,6 +6,7 @@ import (
 	"github.com/PhantomX7/go-pos/service/customer"
 	"github.com/PhantomX7/go-pos/service/invoice"
 	"github.com/PhantomX7/go-pos/service/invoice/delivery/http/request"
+	"github.com/PhantomX7/go-pos/service/product"
 	"github.com/PhantomX7/go-pos/service/transaction"
 	"github.com/PhantomX7/go-pos/utils/response_util"
 	"github.com/jinzhu/copier"
@@ -17,17 +18,20 @@ type InvoiceUsecase struct {
 	invoiceRepo     invoice.InvoiceRepository
 	customerRepo    customer.CustomerRepository
 	transactionRepo transaction.TransactionRepository
+	productRepo     product.ProductRepository
 }
 
 func NewInvoiceUsecase(
 	invoiceRepo invoice.InvoiceRepository,
 	customerRepo customer.CustomerRepository,
 	transactionRepo transaction.TransactionRepository,
+	productRepo product.ProductRepository,
 ) invoice.InvoiceUsecase {
 	return &InvoiceUsecase{
 		invoiceRepo:     invoiceRepo,
 		customerRepo:    customerRepo,
 		transactionRepo: transactionRepo,
+		productRepo:     productRepo,
 	}
 }
 
@@ -89,11 +93,10 @@ func (a *InvoiceUsecase) Index(paginationConfig request.InvoicePaginationConfig)
 
 	for _, inv := range invoices {
 		c, _ := a.customerRepo.FindByID(inv.CustomerId)
-		t, _ := a.transactionRepo.FindByInvoiceID(inv.ID)
 		res = append(res, entity.InvoiceDetail{
-			Invoice:      inv,
-			Customer:     &c,
-			Transactions: t})
+			Invoice:  inv,
+			Customer: c,
+		})
 	}
 
 	total, err := a.invoiceRepo.Count(paginationConfig)
@@ -106,6 +109,64 @@ func (a *InvoiceUsecase) Index(paginationConfig request.InvoicePaginationConfig)
 	return res, meta, nil
 }
 
-func (a *InvoiceUsecase) Show(invoiceID uint64) (models.Invoice, error) {
-	return a.invoiceRepo.FindByID(invoiceID)
+func (a *InvoiceUsecase) Show(invoiceID uint64) (entity.InvoiceDetail, error) {
+	invoiceM, err := a.invoiceRepo.FindByID(invoiceID)
+	if err != nil {
+		return entity.InvoiceDetail{}, err
+	}
+
+	customerM, err := a.customerRepo.FindByID(invoiceM.CustomerId)
+	if err != nil {
+		return entity.InvoiceDetail{}, err
+	}
+
+	transactions, err := a.transactionRepo.FindByInvoiceID(invoiceID)
+	if err != nil {
+		return entity.InvoiceDetail{}, err
+	}
+
+	transactionDetails := []entity.TransactionDetail{}
+	for _, t := range transactions {
+		p, _ := a.productRepo.FindByID(t.ProductId)
+		transactionDetails = append(transactionDetails, entity.TransactionDetail{
+			Transaction: t,
+			Product:     p,
+		})
+	}
+
+	return entity.InvoiceDetail{
+		Invoice:      invoiceM,
+		Customer:     customerM,
+		Transactions: transactionDetails,
+	}, err
+}
+
+func (a *InvoiceUsecase) SyncInvoice(invoiceID uint64) error {
+	transactions, err := a.transactionRepo.FindByInvoiceID(invoiceID)
+	if err != nil {
+		return err
+	}
+	totalCapital := 0.0;
+	totalSellPrice := 0.0;
+	totalProfit := 0.0;
+	for _, t := range transactions {
+		totalCapital += t.Amount * t.CapitalPrice
+		totalSellPrice += t.TotalSellPrice
+		totalProfit += (t.SellPrice - t.CapitalPrice) * t.Amount
+	}
+	invoiceM, err := a.invoiceRepo.FindByID(invoiceID)
+	if err != nil {
+		return err
+	}
+
+	invoiceM.TotalCapital = totalCapital
+	invoiceM.TotalSellPrice = totalSellPrice
+	invoiceM.TotalProfit = totalProfit
+
+	err = a.invoiceRepo.Update(&invoiceM, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

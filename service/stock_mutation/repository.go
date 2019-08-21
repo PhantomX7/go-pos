@@ -1,4 +1,4 @@
-package stockmutation
+package stock_mutation
 
 import (
 	"github.com/PhantomX7/go-pos/models"
