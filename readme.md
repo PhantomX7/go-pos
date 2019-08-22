@@ -5,11 +5,11 @@ how to install
 
 `yarn` / `npm install`
 
-`sequelize db:create`
+`make migrate`
 
-`sequelize db:migrate`
+`make seed`
 
-`dep ensure`
+`make dep`
 
 `make dev`
 
