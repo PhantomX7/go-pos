@@ -7,8 +7,8 @@ import (
 )
 
 type ProductUsecase interface {
-	Create(request request.ProductCreateRequest) (models.Product, error)
-	Update(productID uint64, request request.ProductUpdateRequest) (models.Product, error)
+	Create(request request.ProductCreateRequest) (*models.Product, error)
+	Update(productID uint64, request request.ProductUpdateRequest) (*models.Product, error)
 	Index(paginationConfig request.ProductPaginationConfig) ([]models.Product, response_util.PaginationMeta, error)
-	Show(productID uint64) (models.Product, error)
+	Show(productID uint64) (*models.Product, error)
 }

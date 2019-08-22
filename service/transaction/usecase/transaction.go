@@ -22,7 +22,7 @@ type TransactionUsecase struct {
 	productRepo       product.ProductRepository
 }
 
-func NewTransactionUsecase(
+func New(
 	transactionRepo transaction.TransactionRepository,
 	stockMutationRepo stock_mutation.StockMutationRepository,
 	invoiceRepo invoice.InvoiceRepository,
@@ -36,7 +36,7 @@ func NewTransactionUsecase(
 	}
 }
 
-func (t *TransactionUsecase) Create(request request.TransactionCreateRequest) (models.Transaction, error) {
+func (t *TransactionUsecase) Create(request request.TransactionCreateRequest) (*models.Transaction, error) {
 	var transactionM models.Transaction
 
 	// init transaction
@@ -52,38 +52,39 @@ func (t *TransactionUsecase) Create(request request.TransactionCreateRequest) (m
 	err := t.stockMutationRepo.Insert(&stockMutationM, tx)
 	if err != nil {
 		tx.Rollback()
-		return transactionM, err
+		return nil, err
 	}
 
 	productM, err := t.productRepo.FindByID(request.ProductId)
 	if err != nil {
 		tx.Rollback()
-		return transactionM, err
+		return nil, err
 	}
 	// reduce the stock
 	productM.Stock -= request.Amount
 	if productM.Stock < 0 {
 		err := errors.ErrUnprocessableEntity
 		err.Message = map[string]string{"amount": "invalid amount"}
-		return transactionM, err
+		tx.Rollback()
+		return nil, err
 	}
 
-	err = t.productRepo.Update(&productM, tx)
+	err = t.productRepo.Update(productM, tx)
 	if err != nil {
 		tx.Rollback()
-		return transactionM, err
+		return nil, err
 	}
 
 	invoiceM, err := t.invoiceRepo.FindByID(request.InvoiceId)
 	if err != nil {
 		tx.Rollback()
-		return transactionM, err
+		return nil, err
 	}
 
 	transactionM = models.Transaction{
-		InvoiceId:       request.InvoiceId,
-		ProductId:       request.ProductId,
-		StockMutationId: stockMutationM.ID,
+		InvoiceID:       request.InvoiceId,
+		ProductID:       request.ProductId,
+		StockMutationID: stockMutationM.ID,
 		CapitalPrice:    request.CapitalPrice,
 		SellPrice:       request.SellPrice,
 		Amount:          request.Amount,
@@ -96,15 +97,15 @@ func (t *TransactionUsecase) Create(request request.TransactionCreateRequest) (m
 	err = t.transactionRepo.Insert(&transactionM, tx)
 	if err != nil {
 		tx.Rollback()
-		return transactionM, err
+		return nil, err
 	}
 
 	tx.Commit()
 
-	return transactionM, nil
+	return &transactionM, nil
 }
 
-func (t *TransactionUsecase) Update(transactionID uint64, request request.TransactionUpdateRequest) (models.Transaction, error) {
+func (t *TransactionUsecase) Update(transactionID uint64, request request.TransactionUpdateRequest) (*models.Transaction, error) {
 	transactionM, err := t.transactionRepo.FindByID(transactionID)
 	if err != nil {
 		return transactionM, err
@@ -114,14 +115,14 @@ func (t *TransactionUsecase) Update(transactionID uint64, request request.Transa
 	tx := database.BeginTransactions()
 
 	// delete previous stock mutation
-	err = t.stockMutationRepo.Delete(&models.StockMutation{ID: transactionM.ID}, tx)
+	err = t.stockMutationRepo.Delete(&models.StockMutation{ID: transactionM.StockMutationID}, tx)
 	if err != nil {
 		tx.Rollback()
 		return transactionM, err
 	}
 
 	stockMutationM := models.StockMutation{
-		ProductID: transactionM.ProductId,
+		ProductID: transactionM.ProductID,
 		Amount:    request.Amount,
 		Type:      models.StockMutationOUT,
 	}
@@ -134,7 +135,7 @@ func (t *TransactionUsecase) Update(transactionID uint64, request request.Transa
 	}
 
 	// re-update product stock
-	productM, err := t.productRepo.FindByID(transactionM.ProductId)
+	productM, err := t.productRepo.FindByID(transactionM.ProductID)
 	if err != nil {
 		tx.Rollback()
 		return transactionM, err
@@ -144,10 +145,11 @@ func (t *TransactionUsecase) Update(transactionID uint64, request request.Transa
 	if productM.Stock < 0 {
 		err := errors.ErrUnprocessableEntity
 		err.Message = map[string]string{"amount": "invalid amount"}
+		tx.Rollback()
 		return transactionM, err
 	}
 
-	err = t.productRepo.Update(&productM, tx)
+	err = t.productRepo.Update(productM, tx)
 	if err != nil {
 		tx.Rollback()
 		return transactionM, err
@@ -155,8 +157,10 @@ func (t *TransactionUsecase) Update(transactionID uint64, request request.Transa
 
 	// copy content of request into request model found by id
 	_ = copier.Copy(&transactionM, &request)
+	// update stock mutation id
+	transactionM.StockMutationID = stockMutationM.ID
 
-	err = t.transactionRepo.Update(&transactionM, tx)
+	err = t.transactionRepo.Update(transactionM, tx)
 	if err != nil {
 		tx.Rollback()
 		return transactionM, err
@@ -177,14 +181,14 @@ func (t *TransactionUsecase) Delete(transactionID uint64) error {
 	tx := database.BeginTransactions()
 
 	// delete previous stock mutation
-	err = t.stockMutationRepo.Delete(&models.StockMutation{ID: transactionM.ID}, tx)
+	err = t.stockMutationRepo.Delete(&models.StockMutation{ID: transactionM.StockMutationID}, tx)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	// re-update product stock
-	productM, err := t.productRepo.FindByID(transactionM.ProductId)
+	productM, err := t.productRepo.FindByID(transactionM.ProductID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -192,14 +196,14 @@ func (t *TransactionUsecase) Delete(transactionID uint64) error {
 
 	productM.Stock += transactionM.Amount
 
-	err = t.productRepo.Update(&productM, tx)
+	err = t.productRepo.Update(productM, tx)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	// delete transaction
-	err = t.transactionRepo.Delete(&transactionM, tx)
+	err = t.transactionRepo.Delete(transactionM, tx)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -232,6 +236,6 @@ func (t *TransactionUsecase) Index(paginationConfig request.TransactionPaginatio
 	return transactions, meta, nil
 }
 
-func (t *TransactionUsecase) Show(transactionID uint64) (models.Transaction, error) {
+func (t *TransactionUsecase) Show(transactionID uint64) (*models.Transaction, error) {
 	return t.transactionRepo.FindByID(transactionID)
 }

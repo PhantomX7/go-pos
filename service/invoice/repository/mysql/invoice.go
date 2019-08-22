@@ -14,7 +14,7 @@ type InvoiceRepository struct {
 	db *gorm.DB
 }
 
-func NewInvoiceRepository(db *gorm.DB) invoice.InvoiceRepository {
+func New(db *gorm.DB) invoice.InvoiceRepository {
 	return &InvoiceRepository{
 		db: db,
 	}
@@ -82,21 +82,21 @@ func (i *InvoiceRepository) FindAll(config request_util.PaginationConfig) ([]mod
 	return results, nil
 }
 
-func (i *InvoiceRepository) FindByID(invoiceID uint64) (models.Invoice, error) {
+func (i *InvoiceRepository) FindByID(invoiceID uint64) (*models.Invoice, error) {
 	model := models.Invoice{}
 
 	err := i.db.Where("id = ?", invoiceID).First(&model).Error
 
 	if gorm.IsRecordNotFoundError(err) {
-		return model, errors.ErrNotFound
+		return nil, errors.ErrNotFound
 	}
 
 	if err != nil {
 		log.Println("error-find-invoice-by-id:", err)
-		return model, errors.ErrUnprocessableEntity
+		return nil, errors.ErrUnprocessableEntity
 	}
 
-	return model, nil
+	return &model, nil
 }
 
 func (i *InvoiceRepository) Count(config request_util.PaginationConfig) (int, error) {

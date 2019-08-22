@@ -17,7 +17,7 @@ type UserHandler struct {
 	userUsecase user.UserUsecase
 }
 
-func NewUserHandler(userUC user.UserUsecase) server.Handler {
+func New(userUC user.UserUsecase) server.Handler {
 	return &UserHandler{
 		userUsecase: userUC,
 	}

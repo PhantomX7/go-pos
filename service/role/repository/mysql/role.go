@@ -3,8 +3,8 @@ package mysql
 import (
 	"log"
 
-	"github.com/PhantomX7/go-pos/service/role"
 	"github.com/PhantomX7/go-pos/models"
+	"github.com/PhantomX7/go-pos/service/role"
 	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/PhantomX7/go-pos/utils/request_util"
 	"github.com/jinzhu/gorm"
@@ -14,7 +14,7 @@ type RoleRepository struct {
 	db *gorm.DB
 }
 
-func NewRoleRepository(db *gorm.DB) role.RoleRepository {
+func New(db *gorm.DB) role.RoleRepository {
 	return &RoleRepository{
 		db: db,
 	}
@@ -61,36 +61,36 @@ func (r *RoleRepository) FindAll(config request_util.PaginationConfig) ([]models
 	return results, nil
 }
 
-func (r *RoleRepository) FindByID(roleID uint64) (models.Role, error) {
+func (r *RoleRepository) FindByID(roleID uint64) (*models.Role, error) {
 	model := models.Role{}
 
 	err := r.db.Where("id = ?", roleID).First(&model).Error
 
 	if gorm.IsRecordNotFoundError(err) {
-		return model, errors.ErrNotFound
+		return nil, errors.ErrNotFound
 	}
 
 	if err != nil {
 		log.Println("error-find-role-by-id:", err)
-		return model, errors.ErrUnprocessableEntity
+		return nil, errors.ErrUnprocessableEntity
 	}
 
-	return model, nil
+	return &model, nil
 }
 
-func (r *RoleRepository) FindByName(roleName string) (models.Role, error) {
+func (r *RoleRepository) FindByName(roleName string) (*models.Role, error) {
 	model := models.Role{}
 
 	err := r.db.Where("name = ?", roleName).First(&model).Error
 
 	if gorm.IsRecordNotFoundError(err) {
-		return model, errors.ErrNotFound
+		return nil, errors.ErrNotFound
 	}
 
 	if err != nil {
 		log.Println("error-find-role-by-id:", err)
-		return model, errors.ErrUnprocessableEntity
+		return nil, errors.ErrUnprocessableEntity
 	}
 
-	return model, nil
+	return &model, nil
 }

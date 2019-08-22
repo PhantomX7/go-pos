@@ -14,7 +14,7 @@ type TransactionRepository struct {
 	db *gorm.DB
 }
 
-func NewTransactionRepository(db *gorm.DB) transaction.TransactionRepository {
+func New(db *gorm.DB) transaction.TransactionRepository {
 	return &TransactionRepository{
 		db: db,
 	}
@@ -82,21 +82,21 @@ func (t *TransactionRepository) FindAll(config request_util.PaginationConfig) ([
 	return results, nil
 }
 
-func (t *TransactionRepository) FindByID(transactionID uint64) (models.Transaction, error) {
+func (t *TransactionRepository) FindByID(transactionID uint64) (*models.Transaction, error) {
 	model := models.Transaction{}
 
 	err := t.db.Where("id = ?", transactionID).First(&model).Error
 
 	if gorm.IsRecordNotFoundError(err) {
-		return model, errors.ErrNotFound
+		return nil, errors.ErrNotFound
 	}
 
 	if err != nil {
 		log.Println("error-find-transaction-by-id:", err)
-		return model, errors.ErrUnprocessableEntity
+		return nil, errors.ErrUnprocessableEntity
 	}
 
-	return model, nil
+	return &model, nil
 }
 
 func (t *TransactionRepository) FindByInvoiceID(invoiceID uint64) ([]models.Transaction, error) {

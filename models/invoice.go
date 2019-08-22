@@ -5,7 +5,7 @@ import "time"
 type Invoice struct {
 	ID             uint64     `json:"id"`
 	ImageUrl       *string    `json:"image_url"`
-	CustomerId     uint64     `json:"-"`
+	CustomerID     uint64     `json:"-"`
 	TotalCapital   float64    `json:"total_capital"`
 	TotalSellPrice float64    `json:"total_sell_price"`
 	TotalProfit    float64    `json:"total_profit"`

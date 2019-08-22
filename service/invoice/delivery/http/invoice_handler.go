@@ -17,7 +17,7 @@ type InvoiceHandler struct {
 	invoiceUsecase invoice.InvoiceUsecase
 }
 
-func NewInvoiceHandler(invoiceUC invoice.InvoiceUsecase) server.Handler {
+func New(invoiceUC invoice.InvoiceUsecase) server.Handler {
 	return &InvoiceHandler{
 		invoiceUsecase: invoiceUC,
 	}

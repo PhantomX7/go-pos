@@ -18,7 +18,7 @@ type TransactionHandler struct {
 	invoiceUsecase     invoice.InvoiceUsecase
 }
 
-func NewTransactionHandler(transactionUC transaction.TransactionUsecase, invoiceUC invoice.InvoiceUsecase) server.Handler {
+func New(transactionUC transaction.TransactionUsecase, invoiceUC invoice.InvoiceUsecase) server.Handler {
 	return &TransactionHandler{
 		transactionUsecase: transactionUC,
 		invoiceUsecase:     invoiceUC,
@@ -54,7 +54,7 @@ func (h *TransactionHandler) Create(c *gin.Context) {
 	}
 
 	// sync invoice
-	err = h.invoiceUsecase.SyncInvoice(transactionModel.InvoiceId)
+	err = h.invoiceUsecase.SyncInvoice(transactionModel.InvoiceID)
 	if err != nil {
 		_ = c.Error(err).SetType(gin.ErrorTypePublic)
 		return
@@ -83,7 +83,7 @@ func (h *TransactionHandler) Update(c *gin.Context) {
 	}
 
 	// sync invoice
-	err = h.invoiceUsecase.SyncInvoice(transactionModel.InvoiceId)
+	err = h.invoiceUsecase.SyncInvoice(transactionModel.InvoiceID)
 	if err != nil {
 		_ = c.Error(err).SetType(gin.ErrorTypePublic)
 		return
@@ -111,7 +111,7 @@ func (h *TransactionHandler) Delete(c *gin.Context) {
 	}
 
 	// sync invoice
-	err = h.invoiceUsecase.SyncInvoice(transactionModel.InvoiceId)
+	err = h.invoiceUsecase.SyncInvoice(transactionModel.InvoiceID)
 	if err != nil {
 		_ = c.Error(err).SetType(gin.ErrorTypePublic)
 		return

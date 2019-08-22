@@ -37,7 +37,7 @@ func (suite *MysqlTestSuite) initializeRepository() user.UserRepository {
 		panic(err)
 	}
 
-	return userRepo.NewUserRepository(db)
+	return userRepo.New(db)
 }
 
 func (suite *MysqlTestSuite) TestInsert() {

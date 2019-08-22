@@ -14,7 +14,7 @@ type StockMutationRepository struct {
 	db *gorm.DB
 }
 
-func NewStockMutationRepository(db *gorm.DB) stock_mutation.StockMutationRepository {
+func New(db *gorm.DB) stock_mutation.StockMutationRepository {
 	return &StockMutationRepository{
 		db: db,
 	}
@@ -69,38 +69,38 @@ func (i *StockMutationRepository) FindAll(config request_util.PaginationConfig) 
 	return results, nil
 }
 
-func (i *StockMutationRepository) FindByID(stockMutationID uint64) (models.StockMutation, error) {
+func (i *StockMutationRepository) FindByID(stockMutationID uint64) (*models.StockMutation, error) {
 	model := models.StockMutation{}
 
 	err := i.db.Where("id = ?", stockMutationID).First(&model).Error
 
 	if gorm.IsRecordNotFoundError(err) {
-		return model, errors.ErrNotFound
+		return nil, errors.ErrNotFound
 	}
 
 	if err != nil {
 		log.Println("error-find-stock-mutation-by-id:", err)
-		return model, errors.ErrUnprocessableEntity
+		return nil, errors.ErrUnprocessableEntity
 	}
 
-	return model, nil
+	return &model, nil
 }
 
-func (i *StockMutationRepository) FindByProductID(productID uint64) (models.StockMutation, error) {
+func (i *StockMutationRepository) FindByProductID(productID uint64) (*models.StockMutation, error) {
 	model := models.StockMutation{}
 
 	err := i.db.Where("product_id = ?", productID).First(&model).Error
 
 	if gorm.IsRecordNotFoundError(err) {
-		return model, errors.ErrNotFound
+		return nil, errors.ErrNotFound
 	}
 
 	if err != nil {
 		log.Println("error-find-stock-mutation-by-id:", err)
-		return model, errors.ErrUnprocessableEntity
+		return nil, errors.ErrUnprocessableEntity
 	}
 
-	return model, nil
+	return &model, nil
 }
 
 func (i *StockMutationRepository) Count(config request_util.PaginationConfig) (int, error) {

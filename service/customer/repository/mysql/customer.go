@@ -14,7 +14,7 @@ type CustomerRepository struct {
 	db *gorm.DB
 }
 
-func NewCustomerRepository(db *gorm.DB) customer.CustomerRepository {
+func New(db *gorm.DB) customer.CustomerRepository {
 	return &CustomerRepository{
 		db: db,
 	}
@@ -70,21 +70,21 @@ func (c *CustomerRepository) FindAll(config request_util.PaginationConfig) ([]mo
 	return results, nil
 }
 
-func (c *CustomerRepository) FindByID(customerID uint64) (models.Customer, error) {
+func (c *CustomerRepository) FindByID(customerID uint64) (*models.Customer, error) {
 	model := models.Customer{}
 
 	err := c.db.Where("id = ?", customerID).First(&model).Error
 
 	if gorm.IsRecordNotFoundError(err) {
-		return model, errors.ErrNotFound
+		return nil, errors.ErrNotFound
 	}
 
 	if err != nil {
 		log.Println("error-find-customer-by-id:", err)
-		return model, errors.ErrUnprocessableEntity
+		return nil, errors.ErrUnprocessableEntity
 	}
 
-	return model, nil
+	return &model, nil
 }
 
 func (c *CustomerRepository) Count(config request_util.PaginationConfig) (int, error) {

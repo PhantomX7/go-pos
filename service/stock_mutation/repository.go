@@ -10,6 +10,7 @@ type StockMutationRepository interface {
 	Insert(stockMutation *models.StockMutation, tx *gorm.DB) error
 	Delete(stockMutation *models.StockMutation, tx *gorm.DB) error
 	FindAll(config request_util.PaginationConfig) ([]models.StockMutation, error)
-	FindByID(stockMutationID uint64) (models.StockMutation, error)
+	FindByID(stockMutationID uint64) (*models.StockMutation, error)
+	FindByProductID(productID uint64) (*models.StockMutation, error)
 	Count(config request_util.PaginationConfig) (int, error)
 }

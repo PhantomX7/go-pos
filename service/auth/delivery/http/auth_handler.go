@@ -19,7 +19,7 @@ type AuthHandler struct {
 	authUsecase auth.AuthUsecase
 }
 
-func NewAuthHandler(authUC auth.AuthUsecase) server.Handler {
+func New(authUC auth.AuthUsecase) server.Handler {
 	return &AuthHandler{
 		authUsecase: authUC,
 	}

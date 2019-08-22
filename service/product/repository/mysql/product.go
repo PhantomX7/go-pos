@@ -14,7 +14,7 @@ type ProductRepository struct {
 	db *gorm.DB
 }
 
-func NewProductRepository(db *gorm.DB) product.ProductRepository {
+func New(db *gorm.DB) product.ProductRepository {
 	return &ProductRepository{
 		db: db,
 	}
@@ -69,21 +69,21 @@ func (p *ProductRepository) FindAll(config request_util.PaginationConfig) ([]mod
 	return results, nil
 }
 
-func (p *ProductRepository) FindByID(productID uint64) (models.Product, error) {
+func (p *ProductRepository) FindByID(productID uint64) (*models.Product, error) {
 	model := models.Product{}
 
 	err := p.db.Where("id = ?", productID).First(&model).Error
 
 	if gorm.IsRecordNotFoundError(err) {
-		return model, errors.ErrNotFound
+		return nil, errors.ErrNotFound
 	}
 
 	if err != nil {
 		log.Println("error-find-product-by-id:", err)
-		return model, errors.ErrUnprocessableEntity
+		return nil, errors.ErrUnprocessableEntity
 	}
 
-	return model, nil
+	return &model, nil
 }
 
 func (p *ProductRepository) Count(config request_util.PaginationConfig) (int, error) {

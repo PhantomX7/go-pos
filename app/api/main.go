@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/PhantomX7/go-pos/service/stock_adjustment"
 	"log"
 	"net/http"
 	"os"
@@ -14,6 +15,7 @@ import (
 	"github.com/PhantomX7/go-pos/service/customer"
 	"github.com/PhantomX7/go-pos/service/invoice"
 	"github.com/PhantomX7/go-pos/service/product"
+	"github.com/PhantomX7/go-pos/service/return_transaction"
 	"github.com/PhantomX7/go-pos/service/role"
 	"github.com/PhantomX7/go-pos/service/stock_mutation"
 	"github.com/PhantomX7/go-pos/service/transaction"
@@ -35,11 +37,17 @@ import (
 	invoiceRepo "github.com/PhantomX7/go-pos/service/invoice/repository/mysql"
 	invoiceUsecase "github.com/PhantomX7/go-pos/service/invoice/usecase"
 
+	returnTransactionHTTP "github.com/PhantomX7/go-pos/service/return_transaction/delivery/http"
+	returnTransactionRepo "github.com/PhantomX7/go-pos/service/return_transaction/repository/mysql"
+	returnTransactionUsecase "github.com/PhantomX7/go-pos/service/return_transaction/usecase"
+
 	productHTTP "github.com/PhantomX7/go-pos/service/product/delivery/http"
 	productRepo "github.com/PhantomX7/go-pos/service/product/repository/mysql"
 	productUsecase "github.com/PhantomX7/go-pos/service/product/usecase"
 
 	roleRepo "github.com/PhantomX7/go-pos/service/role/repository/mysql"
+
+	stockAdjustmentRepo "github.com/PhantomX7/go-pos/service/stock_adjustment/repository/mysql"
 
 	stockMutationRepo "github.com/PhantomX7/go-pos/service/stock_mutation/repository/mysql"
 
@@ -57,22 +65,25 @@ import (
 )
 
 type repositories struct {
-	userRepository          user.UserRepository
-	roleRepository          role.RoleRepository
-	productRepository       product.ProductRepository
-	customerRepository      customer.CustomerRepository
-	invoiceRepository       invoice.InvoiceRepository
-	stockMutationRepository stock_mutation.StockMutationRepository
-	transactionRepository   transaction.TransactionRepository
+	userRepository              user.UserRepository
+	roleRepository              role.RoleRepository
+	productRepository           product.ProductRepository
+	customerRepository          customer.CustomerRepository
+	invoiceRepository           invoice.InvoiceRepository
+	stockAdjustmentRepository   stock_adjustment.StockAdjustmentRepository
+	stockMutationRepository     stock_mutation.StockMutationRepository
+	transactionRepository       transaction.TransactionRepository
+	returnTransactionRepository return_transaction.ReturnTransactionRepository
 }
 
 type usecases struct {
-	userUsecase        user.UserUsecase
-	authUsecase        auth.AuthUsecase
-	productUsecase     product.ProductUsecase
-	customerUsecase    customer.CustomerUsecase
-	invoiceUsecase     invoice.InvoiceUsecase
-	transactionUsecase transaction.TransactionUsecase
+	userUsecase              user.UserUsecase
+	authUsecase              auth.AuthUsecase
+	productUsecase           product.ProductUsecase
+	customerUsecase          customer.CustomerUsecase
+	invoiceUsecase           invoice.InvoiceUsecase
+	transactionUsecase       transaction.TransactionUsecase
+	returnTransactionUsecase return_transaction.ReturnTransactionUsecase
 }
 
 func main() {
@@ -94,6 +105,7 @@ func main() {
 	customerHandler := resolveCustomerHandler(usecases)
 	invoiceHandler := resolveInvoiceHandler(usecases)
 	transactionHandler := resolveTransactionHandler(usecases)
+	returnTransactionHandler := resolveReturnTransactionHandler(usecases)
 
 	startServer(
 		userHandler,
@@ -102,6 +114,7 @@ func main() {
 		customerHandler,
 		invoiceHandler,
 		transactionHandler,
+		returnTransactionHandler,
 	)
 }
 
@@ -183,58 +196,71 @@ func sleep() {
 }
 
 func resolveUserHandler(usecases usecases) server.Handler {
-	return userHTTP.NewUserHandler(usecases.userUsecase)
+	return userHTTP.New(usecases.userUsecase)
 }
 
 func resolveAuthHandler(usecases usecases) server.Handler {
-	return authHTTP.NewAuthHandler(usecases.authUsecase)
+	return authHTTP.New(usecases.authUsecase)
 }
 
 func resolveProductHandler(usecases usecases) server.Handler {
-	return productHTTP.NewProductHandler(usecases.productUsecase)
+	return productHTTP.New(usecases.productUsecase)
 }
 
 func resolveCustomerHandler(usecases usecases) server.Handler {
-	return customerHTTP.NewCustomerHandler(usecases.customerUsecase)
+	return customerHTTP.New(usecases.customerUsecase)
 }
 
 func resolveInvoiceHandler(usecases usecases) server.Handler {
-	return invoiceHTTP.NewInvoiceHandler(usecases.invoiceUsecase)
+	return invoiceHTTP.New(usecases.invoiceUsecase)
 }
 
 func resolveTransactionHandler(usecases usecases) server.Handler {
-	return transactionHTTP.NewTransactionHandler(usecases.transactionUsecase, usecases.invoiceUsecase)
+	return transactionHTTP.New(usecases.transactionUsecase, usecases.invoiceUsecase)
+}
+
+func resolveReturnTransactionHandler(usecases usecases) server.Handler {
+	return returnTransactionHTTP.New(usecases.returnTransactionUsecase, usecases.invoiceUsecase)
 }
 
 func initRepository(db *gorm.DB) repositories {
 	return repositories{
-		userRepository:          userRepo.NewUserRepository(db),
-		roleRepository:          roleRepo.NewRoleRepository(db),
-		productRepository:       productRepo.NewProductRepository(db),
-		customerRepository:      customerRepo.NewCustomerRepository(db),
-		invoiceRepository:       invoiceRepo.NewInvoiceRepository(db),
-		stockMutationRepository: stockMutationRepo.NewStockMutationRepository(db),
-		transactionRepository:   transactionRepo.NewTransactionRepository(db),
+		userRepository:              userRepo.New(db),
+		roleRepository:              roleRepo.New(db),
+		productRepository:           productRepo.New(db),
+		customerRepository:          customerRepo.New(db),
+		invoiceRepository:           invoiceRepo.New(db),
+		stockAdjustmentRepository:   stockAdjustmentRepo.New(db),
+		stockMutationRepository:     stockMutationRepo.New(db),
+		transactionRepository:       transactionRepo.New(db),
+		returnTransactionRepository: returnTransactionRepo.New(db),
 	}
 }
 
-func initUsecase(repositories repositories) usecases {
+func initUsecase(r repositories) usecases {
 	return usecases{
-		userUsecase: userUsecase.NewUserUsecase(repositories.userRepository),
-		authUsecase: authUsecase.NewAuthUsecase(repositories.userRepository, repositories.roleRepository),
-		invoiceUsecase: invoiceUsecase.NewInvoiceUsecase(
-			repositories.invoiceRepository,
-			repositories.customerRepository,
-			repositories.transactionRepository,
-			repositories.productRepository,
+		userUsecase: userUsecase.New(r.userRepository),
+		authUsecase: authUsecase.New(r.userRepository, r.roleRepository),
+		invoiceUsecase: invoiceUsecase.New(
+			r.invoiceRepository,
+			r.customerRepository,
+			r.transactionRepository,
+			r.productRepository,
+			r.returnTransactionRepository,
 		),
-		productUsecase:  productUsecase.NewProductUsecase(repositories.productRepository),
-		customerUsecase: customerUsecase.NewCustomerUsecase(repositories.customerRepository),
-		transactionUsecase: transactionUsecase.NewTransactionUsecase(
-			repositories.transactionRepository,
-			repositories.stockMutationRepository,
-			repositories.invoiceRepository,
-			repositories.productRepository,
+		productUsecase:  productUsecase.New(r.productRepository, r.stockAdjustmentRepository),
+		customerUsecase: customerUsecase.New(r.customerRepository),
+		transactionUsecase: transactionUsecase.New(
+			r.transactionRepository,
+			r.stockMutationRepository,
+			r.invoiceRepository,
+			r.productRepository,
+		),
+		returnTransactionUsecase: returnTransactionUsecase.New(
+			r.returnTransactionRepository,
+			r.transactionRepository,
+			r.stockMutationRepository,
+			r.productRepository,
 		),
 	}
 }

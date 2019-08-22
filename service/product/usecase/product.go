@@ -4,6 +4,7 @@ import (
 	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/service/product"
 	"github.com/PhantomX7/go-pos/service/product/delivery/http/request"
+	"github.com/PhantomX7/go-pos/service/stock_adjustment"
 	"github.com/PhantomX7/go-pos/utils/response_util"
 	"github.com/jinzhu/copier"
 )
@@ -11,16 +12,21 @@ import (
 // apply business logic here
 
 type ProductUsecase struct {
-	productRepo product.ProductRepository
+	productRepo         product.ProductRepository
+	stockAdjustmentRepo stock_adjustment.StockAdjustmentRepository
 }
 
-func NewProductUsecase(productRepo product.ProductRepository) product.ProductUsecase {
+func New(
+	productRepo product.ProductRepository,
+	stockAdjustmentRepo stock_adjustment.StockAdjustmentRepository,
+) product.ProductUsecase {
 	return &ProductUsecase{
-		productRepo: productRepo,
+		productRepo:         productRepo,
+		stockAdjustmentRepo: stockAdjustmentRepo,
 	}
 }
 
-func (a *ProductUsecase) Create(request request.ProductCreateRequest) (models.Product, error) {
+func (a *ProductUsecase) Create(request request.ProductCreateRequest) (*models.Product, error) {
 	productM := models.Product{
 		Name:            request.Name,
 		Pinyin:          request.Pinyin,
@@ -34,12 +40,12 @@ func (a *ProductUsecase) Create(request request.ProductCreateRequest) (models.Pr
 	}
 	err := a.productRepo.Insert(&productM, nil)
 	if err != nil {
-		return productM, err
+		return nil, err
 	}
-	return productM, nil
+	return &productM, nil
 }
 
-func (a *ProductUsecase) Update(productID uint64, request request.ProductUpdateRequest) (models.Product, error) {
+func (a *ProductUsecase) Update(productID uint64, request request.ProductUpdateRequest) (*models.Product, error) {
 	productM, err := a.productRepo.FindByID(productID)
 	if err != nil {
 		return productM, err
@@ -48,7 +54,7 @@ func (a *ProductUsecase) Update(productID uint64, request request.ProductUpdateR
 	// copy content of request into request model found by id
 	_ = copier.Copy(&productM, &request)
 
-	err = a.productRepo.Update(&productM, nil)
+	err = a.productRepo.Update(productM, nil)
 	if err != nil {
 		return productM, err
 	}
@@ -74,6 +80,6 @@ func (a *ProductUsecase) Index(paginationConfig request.ProductPaginationConfig)
 	return products, meta, nil
 }
 
-func (a *ProductUsecase) Show(productID uint64) (models.Product, error) {
+func (a *ProductUsecase) Show(productID uint64) (*models.Product, error) {
 	return a.productRepo.FindByID(productID)
 }

@@ -15,13 +15,13 @@ type UserUsecase struct {
 	userRepo user.UserRepository
 }
 
-func NewUserUsecase(userRepo user.UserRepository) user.UserUsecase {
+func New(userRepo user.UserRepository) user.UserUsecase {
 	return &UserUsecase{
 		userRepo: userRepo,
 	}
 }
 
-func (a *UserUsecase) Create(request request.UserCreateRequest) (models.User, error) {
+func (a *UserUsecase) Create(request request.UserCreateRequest) (*models.User, error) {
 	userM := models.User{
 		Username: request.Username,
 		Password: request.Password,
@@ -30,12 +30,12 @@ func (a *UserUsecase) Create(request request.UserCreateRequest) (models.User, er
 
 	err := a.userRepo.Insert(&userM)
 	if err != nil {
-		return userM, err
+		return nil, err
 	}
-	return userM, nil
+	return &userM, nil
 }
 
-func (a *UserUsecase) Update(userID uint64, request request.UserUpdateRequest) (models.User, error) {
+func (a *UserUsecase) Update(userID uint64, request request.UserUpdateRequest) (*models.User, error) {
 	userM, err := a.userRepo.FindByID(userID)
 	if err != nil {
 		return userM, err
@@ -44,7 +44,7 @@ func (a *UserUsecase) Update(userID uint64, request request.UserUpdateRequest) (
 	// copy content of request into user model found by id
 	_ = copier.Copy(&userM, &request)
 
-	err = a.userRepo.Update(&userM)
+	err = a.userRepo.Update(userM)
 	if err != nil {
 		return userM, err
 	}
@@ -55,6 +55,6 @@ func (a *UserUsecase) Index(paginationConfig request_util.PaginationConfig) ([]m
 	return nil, response_util.PaginationMeta{}, nil
 }
 
-func (a *UserUsecase) Show(userID uint64) (models.User, error) {
+func (a *UserUsecase) Show(userID uint64) (*models.User, error) {
 	return a.userRepo.FindByID(userID)
 }

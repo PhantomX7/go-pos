@@ -14,13 +14,13 @@ type CustomerUsecase struct {
 	customerRepo customer.CustomerRepository
 }
 
-func NewCustomerUsecase(customerRepo customer.CustomerRepository) customer.CustomerUsecase {
+func New(customerRepo customer.CustomerRepository) customer.CustomerUsecase {
 	return &CustomerUsecase{
 		customerRepo: customerRepo,
 	}
 }
 
-func (a *CustomerUsecase) Create(request request.CustomerCreateRequest) (models.Customer, error) {
+func (a *CustomerUsecase) Create(request request.CustomerCreateRequest) (*models.Customer, error) {
 	customerM := models.Customer{
 		Name:    request.Name,
 		Address: request.Address,
@@ -28,21 +28,21 @@ func (a *CustomerUsecase) Create(request request.CustomerCreateRequest) (models.
 	}
 	err := a.customerRepo.Insert(&customerM)
 	if err != nil {
-		return customerM, err
+		return nil, err
 	}
-	return customerM, nil
+	return &customerM, nil
 }
 
-func (a *CustomerUsecase) Update(customerID uint64, request request.CustomerUpdateRequest) (models.Customer, error) {
+func (a *CustomerUsecase) Update(customerID uint64, request request.CustomerUpdateRequest) (*models.Customer, error) {
 	customerM, err := a.customerRepo.FindByID(customerID)
 	if err != nil {
 		return customerM, err
 	}
 
 	// copy content of request into request model found by id
-	_ = copier.Copy(&customerM, &request)
+	_ = copier.Copy(customerM, &request)
 
-	err = a.customerRepo.Update(&customerM)
+	err = a.customerRepo.Update(customerM)
 	if err != nil {
 		return customerM, err
 	}
@@ -80,6 +80,6 @@ func (a *CustomerUsecase) Index(paginationConfig request.CustomerPaginationConfi
 	return customers, meta, nil
 }
 
-func (a *CustomerUsecase) Show(customerID uint64) (models.Customer, error) {
+func (a *CustomerUsecase) Show(customerID uint64) (*models.Customer, error) {
 	return a.customerRepo.FindByID(customerID)
 }

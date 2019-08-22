@@ -5,12 +5,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/PhantomX7/go-pos/service/role"
-	"github.com/PhantomX7/go-pos/service/user"
+	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/service/auth"
 	"github.com/PhantomX7/go-pos/service/auth/delivery/http/request"
 	"github.com/PhantomX7/go-pos/service/auth/delivery/http/response"
-	"github.com/PhantomX7/go-pos/models"
+	"github.com/PhantomX7/go-pos/service/role"
+	"github.com/PhantomX7/go-pos/service/user"
 	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
@@ -25,10 +25,10 @@ type authClaims struct {
 	jwt.StandardClaims
 	Username string `json:"username"`
 	Role     string `json:"role"`
-	Id       uint64  `json:"id"`
+	Id       uint64 `json:"id"`
 }
 
-func NewAuthUsecase(userRepo user.UserRepository, roleRepo role.RoleRepository) auth.AuthUsecase {
+func New(userRepo user.UserRepository, roleRepo role.RoleRepository) auth.AuthUsecase {
 	return &AuthUsecase{
 		userRepo: userRepo,
 		roleRepo: roleRepo,
@@ -62,15 +62,14 @@ func (a AuthUsecase) SignUp(request request.SignUpRequest) (response.AuthRespons
 		return response.AuthResponse{}, errors.ErrForbidden
 	}
 
-	userM := models.User{
+	err := a.userRepo.Insert(&models.User{
 		Username: request.Username,
 		Password: request.Password,
-	}
-	err := a.userRepo.Insert(&userM)
+	})
 	if err != nil {
 		return response.AuthResponse{}, err
 	}
-	userM, _ = a.userRepo.FindByUsername(request.Username)
+	userM, _ := a.userRepo.FindByUsername(request.Username)
 	roleM, _ := a.roleRepo.FindByID(userM.RoleId)
 	// generate jwt token
 	tokenString, err := generateTokenString(userM, roleM)
@@ -100,7 +99,7 @@ func (a AuthUsecase) GetMe(userID uint64) (response.GetMeResponse, error) {
 	}, nil
 }
 
-func generateTokenString(user models.User, role models.Role) (string, error) {
+func generateTokenString(user *models.User, role *models.Role) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS512, authClaims{
 		Id:       user.ID,
 		Username: user.Username,

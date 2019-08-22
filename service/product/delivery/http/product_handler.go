@@ -17,7 +17,7 @@ type ProductHandler struct {
 	productUsecase product.ProductUsecase
 }
 
-func NewProductHandler(productUC product.ProductUsecase) server.Handler {
+func New(productUC product.ProductUsecase) server.Handler {
 	return &ProductHandler{
 		productUsecase: productUC,
 	}

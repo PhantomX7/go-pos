@@ -17,7 +17,7 @@ type CustomerHandler struct {
 	customerUsecase customer.CustomerUsecase
 }
 
-func NewCustomerHandler(customerUC customer.CustomerUsecase) server.Handler {
+func New(customerUC customer.CustomerUsecase) server.Handler {
 	return &CustomerHandler{
 		customerUsecase: customerUC,
 	}

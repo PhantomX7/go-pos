@@ -7,9 +7,9 @@ import (
 )
 
 type TransactionUsecase interface {
-	Create(request request.TransactionCreateRequest) (models.Transaction, error)
-	Update(transactionID uint64, request request.TransactionUpdateRequest) (models.Transaction, error)
+	Create(request request.TransactionCreateRequest) (*models.Transaction, error)
+	Update(transactionID uint64, request request.TransactionUpdateRequest) (*models.Transaction, error)
 	Delete(transactionID uint64) error
 	Index(paginationConfig request.TransactionPaginationConfig) ([]models.Transaction, response_util.PaginationMeta, error)
-	Show(transactionID uint64) (models.Transaction, error)
+	Show(transactionID uint64) (*models.Transaction, error)
 }

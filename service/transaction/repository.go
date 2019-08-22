@@ -11,7 +11,7 @@ type TransactionRepository interface {
 	Update(transaction *models.Transaction, tx *gorm.DB) error
 	Delete(transaction *models.Transaction, tx *gorm.DB) error
 	FindAll(config request_util.PaginationConfig) ([]models.Transaction, error)
-	FindByID(transactionID uint64) (models.Transaction, error)
+	FindByID(transactionID uint64) (*models.Transaction, error)
 	FindByInvoiceID(invoiceID uint64) ([]models.Transaction, error)
 	Count(config request_util.PaginationConfig) (int, error)
 }
