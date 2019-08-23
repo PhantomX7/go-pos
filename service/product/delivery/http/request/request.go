@@ -19,15 +19,16 @@ type ProductCreateRequest struct {
 }
 
 type ProductUpdateRequest struct {
-	Name            *string  `form:"name" binding:"omitempty,unique=products.name"`
-	Pinyin          *string  `form:"pinyin" `
-	Stock           *float64 `form:"stock" binding:"omitempty,gte=0"`
-	Unit            *string  `form:"unit"`
-	UnitAmount      *int     `form:"unit_amount" binding:"omitempty,gte=0"`
-	Description     *string  `form:"description"`
-	CapitalPrice    *float64 `form:"capital_price" binding:"omitempty,gte=0"`
-	SellPriceCredit *float64 `form:"sell_price_credit" binding:"omitempty,gte=0"`
-	SellPriceCash   *float64 `form:"sell_price_cash" binding:"omitempty,gte=0"`
+	Name             *string  `form:"name" binding:"omitempty,unique=products.name"`
+	Pinyin           *string  `form:"pinyin" `
+	Stock            *float64 `form:"stock" binding:"omitempty,gte=0"`
+	StockDescription string   `form:"stock_description"`
+	Unit             *string  `form:"unit"`
+	UnitAmount       *int     `form:"unit_amount" binding:"omitempty,gte=0"`
+	Description      *string  `form:"description"`
+	CapitalPrice     *float64 `form:"capital_price" binding:"omitempty,gte=0"`
+	SellPriceCredit  *float64 `form:"sell_price_credit" binding:"omitempty,gte=0"`
+	SellPriceCash    *float64 `form:"sell_price_cash" binding:"omitempty,gte=0"`
 }
 
 type ProductPaginationConfig struct {

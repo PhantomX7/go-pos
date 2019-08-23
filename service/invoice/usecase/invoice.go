@@ -9,6 +9,7 @@ import (
 	"github.com/PhantomX7/go-pos/service/product"
 	"github.com/PhantomX7/go-pos/service/return_transaction"
 	"github.com/PhantomX7/go-pos/service/transaction"
+	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/PhantomX7/go-pos/utils/response_util"
 	"github.com/jinzhu/copier"
 )
@@ -74,7 +75,16 @@ func (a *InvoiceUsecase) Update(invoiceID uint64, request request.InvoiceUpdateR
 }
 
 func (a *InvoiceUsecase) Delete(invoiceID uint64) error {
-	err := a.invoiceRepo.Delete(&models.Invoice{ID: invoiceID}, nil)
+	transactions, err := a.transactionRepo.FindByInvoiceID(invoiceID)
+	if err != nil {
+		return err
+	}
+	if len(transactions) > 0 {
+		err := errors.ErrUnprocessableEntity
+		err.Message = "please delete all transaction first"
+		return err
+	}
+	err = a.invoiceRepo.Delete(&models.Invoice{ID: invoiceID}, nil)
 	if err != nil {
 		return err
 	}
@@ -129,7 +139,7 @@ func (a *InvoiceUsecase) Show(invoiceID uint64) (*entity.InvoiceDetail, error) {
 		return nil, err
 	}
 
-	transactionDetails := []entity.TransactionDetail{}
+	var transactionDetails []entity.TransactionDetail
 	for _, t := range transactions {
 		p, _ := a.productRepo.FindByID(t.ProductID)
 		r, _ := a.returnTransactionRepo.FindByTransactionID(t.ID)
@@ -153,9 +163,11 @@ func (a *InvoiceUsecase) SyncInvoice(invoiceID uint64) error {
 	if err != nil {
 		return err
 	}
-	totalCapital := 0.0;
-	totalSellPrice := 0.0;
-	totalProfit := 0.0;
+
+	totalCapital := 0.0
+	totalSellPrice := 0.0
+	totalProfit := 0.0
+
 	for _, t := range transactions {
 		amount := t.Amount
 		r, _ := a.returnTransactionRepo.FindByTransactionID(t.ID)

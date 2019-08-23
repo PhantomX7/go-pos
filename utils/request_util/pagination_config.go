@@ -77,6 +77,9 @@ func BuildLimit(conditions map[string][]string) int {
 	res := 20
 	if len(conditions["limit"]) > 0 {
 		res, _ = strconv.Atoi(conditions["limit"][0])
+		if res > 100 {
+			res = 100
+		}
 	}
 	return res
 }

@@ -4,6 +4,7 @@ import (
 	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/service/invoice"
 	"github.com/PhantomX7/go-pos/service/product"
+	"github.com/PhantomX7/go-pos/service/return_transaction"
 	"github.com/PhantomX7/go-pos/service/stock_mutation"
 	"github.com/PhantomX7/go-pos/service/transaction"
 	"github.com/PhantomX7/go-pos/service/transaction/delivery/http/request"
@@ -16,10 +17,11 @@ import (
 // apply business logic here
 
 type TransactionUsecase struct {
-	transactionRepo   transaction.TransactionRepository
-	stockMutationRepo stock_mutation.StockMutationRepository
-	invoiceRepo       invoice.InvoiceRepository
-	productRepo       product.ProductRepository
+	transactionRepo       transaction.TransactionRepository
+	returnTransactionRepo return_transaction.ReturnTransactionRepository
+	stockMutationRepo     stock_mutation.StockMutationRepository
+	invoiceRepo           invoice.InvoiceRepository
+	productRepo           product.ProductRepository
 }
 
 func New(
@@ -27,12 +29,14 @@ func New(
 	stockMutationRepo stock_mutation.StockMutationRepository,
 	invoiceRepo invoice.InvoiceRepository,
 	productRepo product.ProductRepository,
+	returnTransactionRepo return_transaction.ReturnTransactionRepository,
 ) transaction.TransactionUsecase {
 	return &TransactionUsecase{
-		transactionRepo:   transactionRepo,
-		stockMutationRepo: stockMutationRepo,
-		invoiceRepo:       invoiceRepo,
-		productRepo:       productRepo,
+		transactionRepo:       transactionRepo,
+		stockMutationRepo:     stockMutationRepo,
+		invoiceRepo:           invoiceRepo,
+		productRepo:           productRepo,
+		returnTransactionRepo: returnTransactionRepo,
 	}
 }
 
@@ -174,6 +178,13 @@ func (t *TransactionUsecase) Update(transactionID uint64, request request.Transa
 func (t *TransactionUsecase) Delete(transactionID uint64) error {
 	transactionM, err := t.transactionRepo.FindByID(transactionID)
 	if err != nil {
+		return err
+	}
+
+	r, _ := t.returnTransactionRepo.FindByTransactionID(transactionID)
+	if r != nil {
+		err := errors.ErrUnprocessableEntity
+		err.Message = "please delete the relevant return transaction first"
 		return err
 	}
 
