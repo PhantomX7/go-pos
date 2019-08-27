@@ -15,9 +15,9 @@ type TransactionCreateRequest struct {
 }
 
 type TransactionUpdateRequest struct {
-	CapitalPrice float64 `form:"capital_price"`
-	SellPrice    float64 `form:"sell_price"`
-	Amount       float64 `form:"amount"`
+	CapitalPrice float64 `form:"capital_price" binding:"required,gte=0"`
+	SellPrice    float64 `form:"sell_price" binding:"required,gte=0"`
+	Amount       float64 `form:"amount" binding:"required,gte=0"`
 }
 
 type TransactionPaginationConfig struct {

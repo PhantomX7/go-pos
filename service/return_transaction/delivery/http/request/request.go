@@ -8,5 +8,5 @@ type ReturnTransactionCreateRequest struct {
 }
 
 type ReturnTransactionUpdateRequest struct {
-	Amount float64 `form:"amount"`
+	Amount float64 `form:"amount" binding:"omitempty,gte=0"`
 }

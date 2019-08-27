@@ -60,7 +60,7 @@ func (i *InvoiceRepository) Delete(invoice *models.Invoice, tx *gorm.DB) error {
 }
 
 func (i *InvoiceRepository) FindAll(config request_util.PaginationConfig) ([]models.Invoice, error) {
-	var results []models.Invoice
+	results := []models.Invoice{}
 
 	//default order
 	order := "id"

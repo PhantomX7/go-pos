@@ -48,7 +48,7 @@ func (c *CustomerRepository) Delete(customer *models.Customer) error {
 }
 
 func (c *CustomerRepository) FindAll(config request_util.PaginationConfig) ([]models.Customer, error) {
-	var results []models.Customer
+	results := []models.Customer{}
 
 	//default order
 	order := "id"

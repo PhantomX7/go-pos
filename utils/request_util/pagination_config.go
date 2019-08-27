@@ -115,8 +115,12 @@ func BuildSearchClause(conditions map[string][]string, filterable map[string]str
 				query += fmt.Sprint("AND ", name, " LIKE ? ")
 				args = append(args, fmt.Sprint("%", conditions[name][0], "%"))
 			case BoolType:
+				boolean := 0
+				if conditions[name][0] == "true" {
+					boolean = 1
+				}
 				query += fmt.Sprint("AND ", name, " = ? ")
-				args = append(args, conditions[name][0])
+				args = append(args, boolean)
 			case NumberType:
 				query += fmt.Sprint("AND ", name, " BETWEEN ? AND ? ")
 				minmax := strings.Split(conditions[name][0], ",")

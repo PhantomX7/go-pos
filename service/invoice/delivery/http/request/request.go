@@ -8,10 +8,10 @@ import (
 // request related struct
 
 type InvoiceCreateRequest struct {
-	CustomerId    uint64     `form:"customer_id" binding:"required,exist=customers.id"`
-	Date          time.Time `form:"date" time_format:"2006-01-02"`
-	PaymentStatus bool      `form:"payment_status"`
-	PaymentType   string    `form:"payment_type"`
+	CustomerId    uint64    `form:"customer_id" binding:"required,exist=customers.id"`
+	Date          time.Time `form:"date" binding:"required" time_format:"2006-01-02"`
+	PaymentStatus bool      `form:"payment_status" binding:"required"`
+	PaymentType   string    `form:"payment_type" binding:"required"`
 	Description   *string   `form:"description"`
 }
 

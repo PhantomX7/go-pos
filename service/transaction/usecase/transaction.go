@@ -118,51 +118,54 @@ func (t *TransactionUsecase) Update(transactionID uint64, request request.Transa
 	// init transaction
 	tx := database.BeginTransactions()
 
-	// delete previous stock mutation
-	err = t.stockMutationRepo.Delete(&models.StockMutation{ID: transactionM.StockMutationID}, tx)
-	if err != nil {
-		tx.Rollback()
-		return transactionM, err
-	}
+	if request.Amount != transactionM.Amount {
+		// delete previous stock mutation
+		err = t.stockMutationRepo.Delete(&models.StockMutation{ID: transactionM.StockMutationID}, tx)
+		if err != nil {
+			tx.Rollback()
+			return transactionM, err
+		}
 
-	stockMutationM := models.StockMutation{
-		ProductID: transactionM.ProductID,
-		Amount:    request.Amount,
-		Type:      models.StockMutationOUT,
-	}
+		stockMutationM := models.StockMutation{
+			ProductID: transactionM.ProductID,
+			Amount:    request.Amount,
+			Type:      models.StockMutationOUT,
+		}
 
-	// create new stock mutation
-	err = t.stockMutationRepo.Insert(&stockMutationM, tx)
-	if err != nil {
-		tx.Rollback()
-		return transactionM, err
-	}
+		// create new stock mutation
+		err = t.stockMutationRepo.Insert(&stockMutationM, tx)
+		if err != nil {
+			tx.Rollback()
+			return transactionM, err
+		}
 
-	// re-update product stock
-	productM, err := t.productRepo.FindByID(transactionM.ProductID)
-	if err != nil {
-		tx.Rollback()
-		return transactionM, err
-	}
+		// re-update product stock
+		productM, err := t.productRepo.FindByID(transactionM.ProductID)
+		if err != nil {
+			tx.Rollback()
+			return transactionM, err
+		}
 
-	productM.Stock += transactionM.Amount - request.Amount
-	if productM.Stock < 0 {
-		err := errors.ErrUnprocessableEntity
-		err.Message = map[string]string{"amount": "invalid amount"}
-		tx.Rollback()
-		return transactionM, err
-	}
+		productM.Stock += transactionM.Amount - request.Amount
+		if productM.Stock < 0 {
+			err := errors.ErrUnprocessableEntity
+			err.Message = map[string]string{"amount": "invalid amount"}
+			tx.Rollback()
+			return transactionM, err
+		}
 
-	err = t.productRepo.Update(productM, tx)
-	if err != nil {
-		tx.Rollback()
-		return transactionM, err
+		err = t.productRepo.Update(productM, tx)
+		if err != nil {
+			tx.Rollback()
+			return transactionM, err
+		}
+
+		// update stock mutation id
+		transactionM.StockMutationID = stockMutationM.ID
 	}
 
 	// copy content of request into request model found by id
 	_ = copier.Copy(&transactionM, &request)
-	// update stock mutation id
-	transactionM.StockMutationID = stockMutationM.ID
 
 	err = t.transactionRepo.Update(transactionM, tx)
 	if err != nil {

@@ -93,7 +93,7 @@ func (a *InvoiceUsecase) Delete(invoiceID uint64) error {
 }
 
 func (a *InvoiceUsecase) Index(paginationConfig request.InvoicePaginationConfig) ([]entity.InvoiceDetail, response_util.PaginationMeta, error) {
-	var res []entity.InvoiceDetail
+	res := []entity.InvoiceDetail{}
 	meta := response_util.PaginationMeta{
 		Offset: paginationConfig.Offset(),
 		Limit:  paginationConfig.Limit(),
