@@ -21,7 +21,7 @@ func New(db *gorm.DB) user.UserRepository {
 }
 
 func (u *UserRepository) Insert(user *models.User) error {
-	err := encryptUserPassword(user)
+	err := EncryptUserPassword(user)
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func (u *UserRepository) Insert(user *models.User) error {
 }
 
 func (u *UserRepository) Update(user *models.User) error {
-	err := encryptUserPassword(user)
+	err := EncryptUserPassword(user)
 	if err != nil {
 		return err
 	}
@@ -117,7 +117,7 @@ func (u *UserRepository) Count(config request_util.PaginationConfig) (int, error
 	return count, nil
 }
 
-func encryptUserPassword(user *models.User) error {
+func EncryptUserPassword(user *models.User) error {
 	password, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Println("error-encrypting-password:", err)

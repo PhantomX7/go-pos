@@ -38,7 +38,7 @@ func (a *UserUsecase) Create(request request.UserCreateRequest) (*models.User, e
 func (a *UserUsecase) Update(userID uint64, request request.UserUpdateRequest) (*models.User, error) {
 	userM, err := a.userRepo.FindByID(userID)
 	if err != nil {
-		return userM, err
+		return nil, err
 	}
 
 	// copy content of request into user model found by id
@@ -46,7 +46,7 @@ func (a *UserUsecase) Update(userID uint64, request request.UserUpdateRequest) (
 
 	err = a.userRepo.Update(userM)
 	if err != nil {
-		return userM, err
+		return nil, err
 	}
 	return userM, nil
 }
