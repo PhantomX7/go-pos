@@ -5,7 +5,6 @@ import (
 	"github.com/PhantomX7/go-pos/service/user"
 	"github.com/PhantomX7/go-pos/utils/errors"
 	"github.com/PhantomX7/go-pos/utils/request_util"
-	"github.com/PhantomX7/go-pos/utils/response_util"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 	"log"
@@ -21,12 +20,12 @@ func New(db *gorm.DB) user.UserRepository {
 	}
 }
 
-func (a *UserRepository) Insert(user *models.User) error {
+func (u *UserRepository) Insert(user *models.User) error {
 	err := encryptUserPassword(user)
 	if err != nil {
 		return err
 	}
-	err = a.db.Create(user).Error
+	err = u.db.Create(user).Error
 	if err != nil {
 		log.Println("error-insert-user:", err)
 		return errors.ErrUnprocessableEntity
@@ -34,12 +33,12 @@ func (a *UserRepository) Insert(user *models.User) error {
 	return nil
 }
 
-func (a *UserRepository) Update(user *models.User) error {
+func (u *UserRepository) Update(user *models.User) error {
 	err := encryptUserPassword(user)
 	if err != nil {
 		return err
 	}
-	err = a.db.Save(user).Error
+	err = u.db.Save(user).Error
 	if err != nil {
 		log.Println("error-update-user:", err)
 		return errors.ErrUnprocessableEntity
@@ -47,14 +46,33 @@ func (a *UserRepository) Update(user *models.User) error {
 	return nil
 }
 
-func (a *UserRepository) FindAll(config request_util.PaginationConfig) ([]models.User, response_util.PaginationMeta, error) {
-	return nil, response_util.PaginationMeta{}, nil
+func (u *UserRepository) FindAll(config request_util.PaginationConfig) ([]models.User, error) {
+	var results []models.User
+
+	//default order
+	order := "id"
+	orderConfig := config.Order()
+	if orderConfig != "" {
+		order = orderConfig
+	}
+	sc := config.SearchClause()
+	err := u.db.Order(order).
+		Limit(config.Limit()).
+		Offset(config.Offset()).
+		Where(sc.Query, sc.Args...).
+		Find(&results).Error
+	if err != nil {
+		log.Println("error-find-user:", err)
+		return nil, errors.ErrUnprocessableEntity
+	}
+
+	return results, nil
 }
 
-func (a *UserRepository) FindByID(userID uint64) (*models.User, error) {
+func (u *UserRepository) FindByID(userID uint64) (*models.User, error) {
 	model := models.User{}
 
-	err := a.db.Where("id = ?", userID).First(&model).Error
+	err := u.db.Where("id = ?", userID).First(&model).Error
 
 	if gorm.IsRecordNotFoundError(err) {
 		return nil, errors.ErrNotFound
@@ -68,10 +86,10 @@ func (a *UserRepository) FindByID(userID uint64) (*models.User, error) {
 	return &model, nil
 }
 
-func (a *UserRepository) FindByUsername(username string) (*models.User, error) {
+func (u *UserRepository) FindByUsername(username string) (*models.User, error) {
 	model := models.User{}
 
-	err := a.db.Where("username = ?", username).First(&model).Error
+	err := u.db.Where("username = ?", username).First(&model).Error
 
 	if gorm.IsRecordNotFoundError(err) {
 		return nil, errors.ErrNotFound
@@ -83,6 +101,20 @@ func (a *UserRepository) FindByUsername(username string) (*models.User, error) {
 	}
 
 	return &model, nil
+}
+
+func (u *UserRepository) Count(config request_util.PaginationConfig) (int, error) {
+	var count int
+
+	sc := config.SearchClause()
+	err := u.db.Model(&models.User{}).Where(sc.Query, sc.Args...).
+		Count(&count).Error
+	if err != nil {
+		log.Println("error-count-user:", err)
+		return 0, errors.ErrUnprocessableEntity
+	}
+
+	return count, nil
 }
 
 func encryptUserPassword(user *models.User) error {

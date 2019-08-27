@@ -4,10 +4,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/service/user"
 	userRepo "github.com/PhantomX7/go-pos/service/user/repository/mysql"
-	"github.com/PhantomX7/go-pos/models"
 	"github.com/PhantomX7/go-pos/utils/errors"
+
 	"github.com/jinzhu/gorm"
 	mocket "github.com/selvatico/go-mocket"
 	"github.com/stretchr/testify/suite"
@@ -81,8 +82,10 @@ func (suite *MysqlTestSuite) TestFindByUserID() {
 		reply := []map[string]interface{}{{"id": 1}}
 		mocket.Catcher.Reset().NewMock().WithReply(reply)
 
-		_, err := suite.repository.FindByID(1)
+		userM, err := suite.repository.FindByID(1)
 		suite.Nil(err)
+		suite.Equal(userM.ID, uint(1))
+
 	})
 
 	suite.Run("with unknown database error", func() {

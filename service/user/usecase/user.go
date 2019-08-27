@@ -52,7 +52,25 @@ func (a *UserUsecase) Update(userID uint64, request request.UserUpdateRequest) (
 }
 
 func (a *UserUsecase) Index(paginationConfig request_util.PaginationConfig) ([]models.User, response_util.PaginationMeta, error) {
-	return nil, response_util.PaginationMeta{}, nil
+	meta := response_util.PaginationMeta{
+		Offset: paginationConfig.Offset(),
+		Limit:  paginationConfig.Limit(),
+		Total:  0,
+	}
+
+	users, err := a.userRepo.FindAll(paginationConfig)
+	if err != nil {
+		return nil, meta, err
+	}
+
+	total, err := a.userRepo.Count(paginationConfig)
+	if err != nil {
+		return nil, meta, err
+	}
+
+	meta.Total = total
+
+	return users, meta, nil
 }
 
 func (a *UserUsecase) Show(userID uint64) (*models.User, error) {
