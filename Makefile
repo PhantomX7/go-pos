@@ -3,8 +3,9 @@ dep:
 
 # Use this only for development
 dev:
-	go build -o bin/cleanarch app/api/main.go
-	./bin/cleanarch
+	set GOOS=linux
+	go build -o bin/go-pos app/api/main.go
+	./bin/go-pos
 
 test:
 	go test ./... -coverprofile cp.out

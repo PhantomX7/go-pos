@@ -145,7 +145,7 @@ func startServer(handlers ...server.Handler) {
 	h := server.BuildHandler(m, handlers...)
 
 	s := &http.Server{
-		Addr:         fmt.Sprintf(":%s", os.Getenv("APP_PORT")),
+		Addr:         fmt.Sprintf(":%s", os.Getenv("PORT")),
 		Handler:      h,
 		ReadTimeout:  300 * time.Second,
 		WriteTimeout: 5 * time.Second,

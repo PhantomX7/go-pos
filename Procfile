@@ -1,1 +1,1 @@
-web: bin/cleanarch
+web: bin/go-pos
